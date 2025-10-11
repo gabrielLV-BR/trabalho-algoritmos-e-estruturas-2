@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1760203979 source:d:\repos\trabalho i\projeto-trabalho-i\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+
