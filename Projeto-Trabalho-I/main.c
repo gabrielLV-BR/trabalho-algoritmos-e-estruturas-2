@@ -106,7 +106,7 @@ void criaArquivosDeDados()
 
     if (infos == INVALID_FILE_ATTRIBUTES || !(infos & FILE_ATTRIBUTE_DIRECTORY))
     {
-        if (1)//CreateDirectoryA(caminho, NULL) TROCAR 1 Por CreateDirectoryA
+        if (1)//CreateDirectoryA(caminho, NULL) TROCAR 1 Por CreateDirectoryA(caminho, NULL)
         {
             printf("\nCriando arquivos de dados...");
 
