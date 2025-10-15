@@ -85,17 +85,149 @@ void imprimeLinhas(HeaderArquivo *h) {
         printf("-----------------------------------------------------\n");
     }
 }
+
+void lerAssociacaoBinario(const char *caminhoArquivo) {
+    FILE *arquivo = fopen(caminhoArquivo, "rb");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo");
+        return;
+    }
+
+    unsigned int qtdLinhas;
+    int maxProduto, maxPedido;
+
+    // Lê o cabeçalho
+    fread(&qtdLinhas, sizeof(unsigned int), 1, arquivo);
+    fread(&maxProduto, sizeof(int), 1, arquivo);
+    fread(&maxPedido, sizeof(int), 1, arquivo);
+
+    printf("Qtd Linhas: %u\n", qtdLinhas);
+    printf("Max Produto: %d\n", maxProduto);
+    printf("Max Pedido: %d\n", maxPedido);
+    printf("====================================\n");
+
+    // Aloca buffers temporários para leitura dos campos
+    char *idPedido = (char *)malloc(maxProduto + 1);
+    char *idProduto = (char *)malloc(maxPedido + 1);
+
+    for (unsigned int i = 0; i < 10; i++) {
+        fread(idPedido, sizeof(char)*maxProduto,1, arquivo);
+        fread(idProduto, sizeof(char)*maxPedido,1, arquivo);
+
+
+        idPedido[maxProduto] = '\0';//COLOCA CARACTER DE FIM DE STRING
+        idProduto[maxPedido] = '\0';//COLOCA CARACTER DE FIM DE STRING
+
+        printf("Linha %u:\n", i + 1);
+        printf("  Pedido : %s\n", idPedido);
+        printf("  Produto: %s\n", idProduto);
+    }
+
+    // Libera memória e fecha arquivo
+    free(idPedido);
+    free(idProduto);
+    fclose(arquivo);
+}
+
+void lerJoiaBinario(const char *caminhoArquivo) {
+    FILE *arquivo = fopen(caminhoArquivo, "rb");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo de joias");
+        return;
+    }
+
+    // === Leitura do cabeçalho ===
+    unsigned int qtdLinhas;
+    int maxProduto, maxAlias, maxPreco, maxGenero, maxCor, maxMaterial, maxJoia;
+
+    fread(&qtdLinhas, sizeof(unsigned int), 1, arquivo);
+    fread(&maxProduto, sizeof(int), 1, arquivo);
+    fread(&maxAlias, sizeof(int), 1, arquivo);
+    fread(&maxPreco, sizeof(int), 1, arquivo);
+    fread(&maxGenero, sizeof(int), 1, arquivo);
+    fread(&maxCor, sizeof(int), 1, arquivo);
+    fread(&maxMaterial, sizeof(int), 1, arquivo);
+    fread(&maxJoia, sizeof(int), 1, arquivo);
+
+    printf("Qtd Linhas: %u\n", qtdLinhas);
+    printf("Max Produto: %d\n", maxProduto);
+    printf("Max Alias: %d\n", maxAlias);
+    printf("Max Preco: %d\n", maxPreco);
+    printf("Max Genero: %d\n", maxGenero);
+    printf("Max Cor: %d\n", maxCor);
+    printf("Max Material: %d\n", maxMaterial);
+    printf("Max Joia: %d\n", maxJoia);
+    printf("====================================\n");
+
+    // === Aloca buffers temporários para leitura ===
+    char *idProduto = (char *)malloc(maxProduto + 1);
+    char *alias = (char *)malloc(maxAlias + 1);
+    char *preco = (char *)malloc(maxPreco + 1);
+    char *genero = (char *)malloc(maxGenero + 1);
+    char *cor = (char *)malloc(maxCor + 1);
+    char *material = (char *)malloc(maxMaterial + 1);
+    char *joia = (char *)malloc(maxJoia + 1);
+
+    if (!idProduto || !alias || !preco || !genero || !cor || !material || !joia) {
+        printf("Erro de alocação de memória!\n");
+        fclose(arquivo);
+        return;
+    }
+
+
+        int limite =  10;
+    for (int i = 0; i < limite; i++) {
+        fread(idProduto, sizeof(char) * (maxProduto + 1), 1, arquivo);
+        fread(alias, sizeof(char) * (maxAlias + 1), 1, arquivo);
+        fread(preco, sizeof(char) * (maxPreco + 1), 1, arquivo);
+        fread(genero, sizeof(char) * (maxGenero + 1), 1, arquivo);
+        fread(cor, sizeof(char) * (maxCor + 1), 1, arquivo);
+        fread(material, sizeof(char) * (maxMaterial + 1), 1, arquivo);
+        fread(joia, sizeof(char) * (maxJoia + 1), 1, arquivo);
+
+        // Garante o fim de string
+        idProduto[maxProduto] = '\0';
+        alias[maxAlias] = '\0';
+        preco[maxPreco] = '\0';
+        genero[maxGenero] = '\0';
+        cor[maxCor] = '\0';
+        material[maxMaterial] = '\0';
+        joia[maxJoia] = '\0';
+
+        printf("Linha %u:\n", i + 1);
+        printf("  Produto : %s\n", idProduto);
+        printf("  Alias   : %s\n", alias);
+        printf("  Preço   : %s\n", preco);
+        printf("  Gênero  : %s\n", genero);
+        printf("  Cor     : %s\n", cor);
+        printf("  Material: %s\n", material);
+        printf("  Joia    : %s\n", joia);
+        printf("------------------------------------\n");
+    }
+
+    // === Libera memória e fecha o arquivo ===
+    free(idProduto);
+    free(alias);
+    free(preco);
+    free(genero);
+    free(cor);
+    free(material);
+    free(joia);
+    fclose(arquivo);
+}
+
 void criaArquivosDeDados()
 {
     int dbg = 0;
     //LEITURA DO DIRETORIO PARA CRIACAO OU NAO DOS ARQUIVOS DE DADOS
-    char* caminho = "C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados";
+    char *caminhoPasta = "C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados";
+    char *caminhoJewelryTratado="C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Arquivos\\jewelry_tratado.csv";
+    char *caminhoAssociacao = "C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados\\associacao.bin";
+    char *caminhoJoia = "C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados\\joia.bin";
 
+    DWORD infos = GetFileAttributesA(caminhoPasta);
 
-
-    DWORD infos = GetFileAttributesA(caminho);
-
-        FILE *jewelryArquivo = fopen("C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Arquivos\\jewelry_tratado.csv","r");
+        FILE *jewelryArquivo = fopen(caminhoJewelryTratado,"r");
 
         if(!jewelryArquivo)
             {
@@ -106,7 +238,7 @@ void criaArquivosDeDados()
 
     if (infos == INVALID_FILE_ATTRIBUTES || !(infos & FILE_ATTRIBUTE_DIRECTORY))
     {
-        if (CreateDirectoryA(caminho, NULL))// TROCAR 1 Por CreateDirectoryA(caminho, NULL)
+        if (CreateDirectoryA(caminhoPasta, NULL))// TROCAR 1 Por CreateDirectoryA(caminho, NULL)
         {
             printf("\nCriando arquivos de dados...");
 
@@ -258,37 +390,54 @@ void criaArquivosDeDados()
 
             imprimeLinhas(&arquivoFonteJoalheria);
 
-           FILE *associacaoArquivo = fopen("C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados\\associacao.bin","wb");
+
+        //CRIANDO ARQUIVO BINARIO DE ASSOCIACAO CHAVE PEDIDO + CHAVE PRODUTO
+           FILE *associacaoArquivo = fopen(caminhoAssociacao,"wb");
 
             fwrite(&arquivoFonteJoalheria.qtdLinhas,sizeof(unsigned int),1,associacaoArquivo); //GUARDA NO ARQUIVO DE DADOS DE ASSOCIACAO QUANTAS LINHAS TEM
             fwrite(&buffer.maxProduto,sizeof(int),1,associacaoArquivo); // TAMANHO DA LINHA
             fwrite(&buffer.maxPedido,sizeof(int),1,associacaoArquivo); // TAMANHO DA LINHA
 
-             fclose(associacaoArquivo);
+         for(int linha = 0 ; linha < arquivoFonteJoalheria.qtdLinhas; linha++)
+         {
+            fwrite(arquivoFonteJoalheria.linhas[linha]->idPedido,sizeof(char)*buffer.maxPedido,1,associacaoArquivo);
+            fwrite(arquivoFonteJoalheria.linhas[linha]->idProduto,sizeof(char)*buffer.maxProduto,1,associacaoArquivo);
 
-            associacaoArquivo = fopen("C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados\\associacao.bin","rb");
-            printf("ARQUVIO DE ASSOCIACAO:\n");
+          }
+         fclose(associacaoArquivo);
+        //=====================================================================================
 
-            unsigned int qtdLinhas;
-            int tamanho;
-            int cursor = 0;
+        lerAssociacaoBinario(caminhoAssociacao);
 
-            fseek(associacaoArquivo,cursor*sizeof(unsigned int),SEEK_SET);
-            fread(&qtdLinhas,sizeof(unsigned int),1,associacaoArquivo);
-            printf("%d\n", qtdLinhas);
+        //CRIANDO ARQUIVO BINARIO DE JOIA
+               //CRIANDO ARQUIVO BINARIO DE JOIA
+           FILE *joiaArquivo = fopen(caminhoJoia,"wb");
 
-            cursor++;
-            while(1)
-            {
-                 if(fseek(associacaoArquivo,cursor*sizeof(int),SEEK_SET)!= 0 ) break;
+            fwrite(&arquivoFonteJoalheria.qtdLinhas,sizeof(unsigned int),1,joiaArquivo); //GUARDA NO ARQUIVO DE DADOS DE ASSOCIACAO QUANTAS LINHAS TEM
+            fwrite(&buffer.maxProduto,sizeof(int),1,joiaArquivo);
+            fwrite(&buffer.maxAlias,sizeof(int),1,joiaArquivo);
+            fwrite(&buffer.maxPreco,sizeof(int),1,joiaArquivo);
+            fwrite(&buffer.maxGenero,sizeof(int),1,joiaArquivo);
+            fwrite(&buffer.maxCor,sizeof(int),1,joiaArquivo);
+            fwrite(&buffer.maxMaterial,sizeof(int),1,joiaArquivo);
+            fwrite(&buffer.maxJoia,sizeof(int),1,joiaArquivo);
 
-                 if(fread(&tamanho,sizeof(int),1,associacaoArquivo) != 1 ) break;
-                 printf("%d\n", tamanho);
-                 cursor++;
-            }
+         for(int linha = 0 ; linha < arquivoFonteJoalheria.qtdLinhas; linha++)
+         {
 
+            fwrite(arquivoFonteJoalheria.linhas[linha]->idProduto,(sizeof(char)*buffer.maxProduto)+1,1,joiaArquivo); //(sizeof(char)buffer)+1 = +1 para o caracter de fim de string '\0'
+            fwrite(arquivoFonteJoalheria.linhas[linha]->alias,(sizeof(char)*buffer.maxAlias)+1,1,joiaArquivo);
+            fwrite(arquivoFonteJoalheria.linhas[linha]->preco,(sizeof(char)*buffer.maxPreco)+1,1,joiaArquivo);
+            fwrite(arquivoFonteJoalheria.linhas[linha]->genero,(sizeof(char)*buffer.maxGenero)+1,1,joiaArquivo);
+            fwrite(arquivoFonteJoalheria.linhas[linha]->cor,(sizeof(char)*buffer.maxCor)+1,1,joiaArquivo);
+            fwrite(arquivoFonteJoalheria.linhas[linha]->material,(sizeof(char)*buffer.maxMaterial)+1,1,joiaArquivo);
+            fwrite(arquivoFonteJoalheria.linhas[linha]->joia,(sizeof(char)*buffer.maxJoia)+1,1,joiaArquivo);
 
-            fclose(associacaoArquivo);
+          }
+         fclose(joiaArquivo);
+      // =====================================================================================
+
+        lerJoiaBinario(caminhoJoia);
             //separar em dois  arquivo de joias (cadastro), e arquivo de acesso compras (pedidos).
             //os arquivos devem estar ordenados por algum dos campos, preferencialmente chave
 

@@ -11,7 +11,6 @@ os.makedirs(base_path, exist_ok=True)
 # Caminhos dos arquivos
 arquivo_origem = os.path.join(base_path, "jewelry.csv")
 arquivo_tratado = os.path.join(base_path, "jewelry_tratado.csv")
-arquivo_associacao = os.path.join(base_path, "associacao.csv")
 
 # Nomes das colunas do CSV original
 colunas = [
@@ -47,19 +46,5 @@ df.to_csv(
     escapechar='\\'
 )
 
-# Lê o arquivo tratado
-df = pd.read_csv(arquivo_tratado, dtype=str)
-
-# Cria o DataFrame apenas com id_pedido e id_produto
-df_associacao = df[["id_pedido", "id_produto"]]
-
-# Salva o novo CSV de associação
-df_associacao.to_csv(
-    arquivo_associacao,
-    index=False,
-    quoting=csv.QUOTE_NONE
-)
-
-print("Arquivos gerados com sucesso em:")
+print("Arquivo gerado com sucesso em:")
 print(f" - {arquivo_tratado}")
-print(f" - {arquivo_associacao}")
