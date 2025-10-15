@@ -238,7 +238,7 @@ void criaArquivosDeDados()
 
     if (infos == INVALID_FILE_ATTRIBUTES || !(infos & FILE_ATTRIBUTE_DIRECTORY))
     {
-        if (CreateDirectoryA(caminhoPasta, NULL))// TROCAR 1 Por CreateDirectoryA(caminho, NULL)
+        if (CreateDirectoryA(caminhoPasta, NULL))// APAGAR DIRETORIO /DADOS , CASO JÁ EXISTA ELE NAO VAI EXECUTAR
         {
             printf("\nCriando arquivos de dados...");
 
