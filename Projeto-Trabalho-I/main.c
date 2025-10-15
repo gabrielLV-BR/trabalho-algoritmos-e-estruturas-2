@@ -106,7 +106,7 @@ void criaArquivosDeDados()
 
     if (infos == INVALID_FILE_ATTRIBUTES || !(infos & FILE_ATTRIBUTE_DIRECTORY))
     {
-        if (1)//CreateDirectoryA(caminho, NULL) TROCAR 1 Por CreateDirectoryA(caminho, NULL)
+        if (CreateDirectoryA(caminho, NULL))// TROCAR 1 Por CreateDirectoryA(caminho, NULL)
         {
             printf("\nCriando arquivos de dados...");
 
@@ -258,12 +258,44 @@ void criaArquivosDeDados()
 
             imprimeLinhas(&arquivoFonteJoalheria);
 
+           FILE *associacaoArquivo = fopen("C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados\\associacao.bin","wb");
+
+            fwrite(&arquivoFonteJoalheria.qtdLinhas,sizeof(unsigned int),1,associacaoArquivo); //GUARDA NO ARQUIVO DE DADOS DE ASSOCIACAO QUANTAS LINHAS TEM
+            fwrite(&buffer.maxProduto,sizeof(int),1,associacaoArquivo); // TAMANHO DA LINHA
+            fwrite(&buffer.maxPedido,sizeof(int),1,associacaoArquivo); // TAMANHO DA LINHA
+
+             fclose(associacaoArquivo);
+
+            associacaoArquivo = fopen("C:\\Users\\jmartins\\repos\\trabalho-algoritmos-e-estruturas-2\\Dados\\associacao.bin","rb");
+            printf("ARQUVIO DE ASSOCIACAO:\n");
+
+            unsigned int qtdLinhas;
+            int tamanho;
+            int cursor = 0;
+
+            fseek(associacaoArquivo,cursor*sizeof(unsigned int),SEEK_SET);
+            fread(&qtdLinhas,sizeof(unsigned int),1,associacaoArquivo);
+            printf("%d\n", qtdLinhas);
+
+            cursor++;
+            while(1)
+            {
+                 if(fseek(associacaoArquivo,cursor*sizeof(int),SEEK_SET)!= 0 ) break;
+
+                 if(fread(&tamanho,sizeof(int),1,associacaoArquivo) != 1 ) break;
+                 printf("%d\n", tamanho);
+                 cursor++;
+            }
+
+
+            fclose(associacaoArquivo);
             //separar em dois  arquivo de joias (cadastro), e arquivo de acesso compras (pedidos).
             //os arquivos devem estar ordenados por algum dos campos, preferencialmente chave
 
 
             //ordenar o arquivo de pedidos com id_pedido+id_produto ( chave primaria))
             //arquivo de joias, limpar repetidos
+
         }
 
     }
@@ -271,6 +303,7 @@ void criaArquivosDeDados()
     {
         printf("Erro ao criar diretorio. Codigo: %lu\n", GetLastError());
     }
+
 
      fclose(jewelryArquivo);
 }
