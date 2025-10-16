@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+
+#include "hash.c"
+#include "arquivo_indice.c"
+
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 typedef struct
