@@ -9,12 +9,10 @@
 	<stdlib.h>
 	<windows.h>
 
-1760842009 source:d:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\main.c
+1760887308 source:d:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\main.c
 	<stdio.h>
 	<stdlib.h>
-	<windows.h>
-	"hash.c"
-	"arquivo_indice.c"
+	<string.h>
 
 1760748362 d:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\hash.c
 	"hash.h"
