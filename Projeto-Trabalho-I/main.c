@@ -354,7 +354,7 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
         if(arquivo == NULL)
         {
             printf("\nNao foi possivel abrir arquivo de indice");
-            return NULL;
+            return -1;
         }
 
     qtdEscrita = fwrite(li->listaIndex,sizeof(IndexPedido),li->qtdIndex,arquivo);
@@ -371,11 +371,17 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
 
          (*nivel)++;
 
-         return li;
+         return li->qtdIndex;
     }
       sprintf(nome, "IndicePedidoNivel-%d.bin", ((*nivel)-1));
 
       FILE *arquivoAnterior = fopen(nome,"rb"); //abre o anterior
+      if(arquivoAnterior == NULL)
+      {
+          printf("\nNão foi possivel abrir arquivo anterior para criacao do indice");
+          return -1;
+      }
+
 
       ListaIndexPedido temp;
       temp.listaIndex= NULL;
