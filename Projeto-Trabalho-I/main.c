@@ -21,6 +21,7 @@ typedef struct
     IndexPedido *listaIndex;
     int qtdIndex;
 
+
 }ListaIndexPedido;
 
 
@@ -28,6 +29,12 @@ typedef struct{
     Pedido *lista;
     int qtdPedido;
 }ListaPedido;
+
+typedef struct{
+    int posicaoInicio;
+
+
+}ArquivoIndice;
 
 
 typedef struct {
@@ -65,12 +72,6 @@ typedef struct
 }ListaIndexProduto;
 
 
-
-
-
-
-
-
 //FUNCOES ARQUICO PEDIDO
 void adicionar_pedido(ListaPedido *lp, Pedido novoPedido)
 {
@@ -106,14 +107,14 @@ void imprimir_lista_pedidos(ListaPedido *lp)
 {
     for(int i =0; i < lp->qtdPedido; i ++)
     {
-        printf("%\nID_PEDIDO:%s",lp->lista[i].id_pedido);
+        printf("%\n[%.3d]ID_PEDIDO:%s",i,lp->lista[i].id_pedido);
     }
 }
 void imprimir_lista_index_pedido(ListaIndexPedido *li)
 {
     for(int i =0; i < li->qtdIndex; i ++)
     {
-        printf("%\nID_PEDIDO:%s ",li->listaIndex[i].id_pedido);
+        printf("%\n[%.3d]ID_PEDIDO:%s ",i,li->listaIndex[i].id_pedido);
         printf("POSICAO:%d",li->listaIndex[i].posicao);
     }
 }
@@ -126,7 +127,6 @@ void lerPedidos(const char *nome_arquivo,ListaIndexPedido *li) {
     }
 
     Pedido p;
-    int count = 0;
 
     int cursor = 0;
     while (fread(&p, sizeof(Pedido), 1, f)) {
@@ -141,7 +141,7 @@ void lerPedidos(const char *nome_arquivo,ListaIndexPedido *li) {
         cursor++;
     }
 
-    printf("\nTotal de pedidos lidos: %d\n", count);
+
     fclose(f);
 }
 //===================================================================
@@ -335,22 +335,224 @@ void quickSort(void *base, int inicio, int fim, size_t size, cmp_fn cmp) {
 
 //====================
 
+
+//CRIACAO DE INDICE POR NIVEl - PEDIDO ============
+
+
+int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tamanhoBloco)
+{
+
+    char nome[50];
+    sprintf(nome, "IndicePedidoNivel-%d.bin", *nivel);
+    long cursor =0;
+    size_t qtdEscrita = 0;
+
+    if(*nivel == 1)//nivel 1 insere todos os indices
+    {
+
+    FILE *arquivo = fopen(nome,"wb");
+        if(arquivo == NULL)
+        {
+            printf("\nNao foi possivel abrir arquivo de indice");
+            return NULL;
+        }
+
+    qtdEscrita = fwrite(li->listaIndex,sizeof(IndexPedido),li->qtdIndex,arquivo);
+
+        if(qtdEscrita != li->qtdIndex)
+        {
+        printf("\nNem todos os indices foram gravados corretamente");
+        }
+
+         fclose(arquivo);
+
+         *qtdBlocos = 0;
+         printf("\nNivel %d criado: %d indices (%d blocos)\n", *nivel, li->qtdIndex, *qtdBlocos);
+
+         (*nivel)++;
+
+         return li;
+    }
+      sprintf(nome, "IndicePedidoNivel-%d.bin", ((*nivel)-1));
+
+      FILE *arquivoAnterior = fopen(nome,"rb"); //abre o anterior
+
+      ListaIndexPedido temp;
+      temp.listaIndex= NULL;
+      temp.qtdIndex =0;
+
+      IndexPedido indexTemp;
+      Pedido pedidoTemp;
+
+    cursor =0;
+    int move = 1;
+    while(1)
+    {
+        if(fseek(arquivoAnterior,((move*tamanhoBloco)-1)*sizeof(IndexPedido),SEEK_SET)!= 0 ) break;
+
+        //LE O ULTIMO PEDIDO DO BLOCO
+        if(fread(&indexTemp,sizeof(indexTemp),1,arquivoAnterior) != 1 ) break;
+
+        //COPIA ID PRO PEDIDO
+        strcpy(pedidoTemp.id_pedido,indexTemp.id_pedido);
+
+        //REUTILIZA A FUNCAO DE ADICIONAR PEDIDO NA LISTA DE INDEX
+        //POSICAO PASSADA É DE ONDE COMEÇA O BLOCO, LOGO É O VALOR DO CURSOR
+        //RESPEITA AS REGRAS DE INDICE CLUSTERIZADO MANTENDO O VALOR FINAL+INICIO DO BLOCO
+        adicionar_index_pedido(&temp,pedidoTemp,cursor);
+
+
+        cursor+=tamanhoBloco;
+        move++;
+    }
+
+     *qtdBlocos = move;
+    //AO TERMINO DO WHILE TEMOS UMA LISTA TEMP SOMENTE COM O ARQUIVO ANTERIOR
+    //PARTICIONADO ENTRE INICIO DO BLOCO E VALOR FINAL DA CHAVE
+
+    imprimir_lista_index_pedido(&temp);
+    fclose(arquivoAnterior);
+
+
+    sprintf(nome, "IndicePedidoNivel-%d.bin", *nivel);
+
+    FILE *arquivoNovo = fopen(nome,"wb");
+    fwrite(temp.listaIndex,sizeof(IndexPedido),temp.qtdIndex,arquivoNovo);
+
+    fclose(arquivoNovo);
+
+    (*nivel)++;
+
+    printf("\nNivel %d criado: %d indices (%d blocos)\n", *nivel - 1, temp.qtdIndex, *qtdBlocos);
+
+
+
+return temp.qtdIndex;
+}
+
+int organizaIndice()
+{
+    int nivelIndice = 1;
+    int qtdBlocos =0;
+    int tamanhoBloco = 100;
+
+    ListaIndexPedido li;
+    li.listaIndex = NULL;
+    li.qtdIndex=0;
+
+    lerPedidos("pedido.bin",&li);
+    quickSort(li.listaIndex,0,li.qtdIndex-1,sizeof(IndexPedido),comparaIndexPedido);
+
+    int qtd = li.qtdIndex;
+
+    while(qtd > 10)
+    {
+      qtd = cria_indice_pedido(&li,&nivelIndice,&qtdBlocos,tamanhoBloco);
+
+    }
+return nivelIndice-1;
+}
+
+void pesquisa_por_id_pedido(char idPedido[20],int nivel,int posicao){
+
+    char nome[50];
+    sprintf(nome, "IndicePedidoNivel-%d.bin", nivel);
+
+    printf("[Nivel %d] Procurando no bloco (posicao %d)...\n", nivel, posicao);
+
+    IndexPedido indexTemp;
+    int cursor =0;
+
+    if(nivel > 1)
+    {
+        FILE *arquivo = fopen(nome,"rb");
+        if(arquivo == NULL)
+        {
+            printf("\nErro ao abrir arquivo");
+            return;
+        }
+
+        if (fseek(arquivo,posicao * sizeof(IndexPedido), SEEK_SET) != 0)
+        {
+            printf("Erro ao posicionar no bloco %ld\n", cursor);
+            fclose(arquivo);
+            return;
+        }
+
+        while (fread(&indexTemp,sizeof(indexTemp), 1, arquivo) == 1)
+        {
+            if (strcmp(idPedido, indexTemp.id_pedido) <= 0) break;
+
+            cursor++;
+
+        }
+        fclose(arquivo);
+        pesquisa_por_id_pedido(idPedido,nivel-1,indexTemp.posicao);
+    }
+    else
+    {
+        //SE FOR NO NIVEL 1 (FINAL)
+    FILE *arquivo = fopen(nome,"rb");
+        if(arquivo == NULL)
+        {
+            printf("\nErro ao abrir arquivo");
+            return;
+        }
+
+
+
+        if (fseek(arquivo,posicao* sizeof(IndexPedido), SEEK_SET) != 0)
+        {
+            printf("Erro ao posicionar no bloco %ld\n", cursor);
+            fclose(arquivo);
+            return;
+        }
+
+        while (fread(&indexTemp, sizeof(indexTemp), 1, arquivo) == 1)
+        {
+            if (strcmp(idPedido, indexTemp.id_pedido) <= 0) break;
+
+            cursor++;
+
+        }
+        if(strcmp(idPedido,indexTemp.id_pedido) == 0 && indexTemp.excluido == 0 )
+        {
+            Pedido p;
+            FILE *arquivoPedido = fopen("pedido.bin","rb");
+
+            if (arquivoPedido == NULL)
+            {
+                printf("\nErro ao abrir pedido.bin");
+                fclose(arquivo);
+                return;
+            }
+
+            fseek(arquivoPedido,indexTemp.posicao*sizeof(Pedido),SEEK_SET);
+
+            fread(&p,sizeof(p),1,arquivoPedido);
+
+             printf("\nPedido encontrado\nID: %s\nData: %s\nPreco: %s\n",p.id_pedido, p.data, p.preco);
+            fclose(arquivoPedido);
+        }
+        else
+        {
+            printf("\nNao foi possivel econtrar pedido");
+        }
+        fclose(arquivo);
+
+    }
+
+}
+
+//=================================================
+
 int main() {
 
 
-    ListaIndexPedido listaIndexPed;
-    listaIndexPed.listaIndex=NULL;
-    listaIndexPed.qtdIndex=0;
+ int nivel = organizaIndice();
 
-
-    ListaIndexProduto listaIndexProd;
-    listaIndexProd.listaIndex = NULL;
-    listaIndexProd.qtdIndex =0;
-
-
-    /* //PEDIDOS ========
-
-
+    pesquisa_por_id_pedido("1924719191579951782",nivel,0);
+    /* //INDEX PEDIDOS ========
     lerPedidos("pedido.bin",&listaIndexPed);
     quickSort(listaIndexPed.listaIndex,0,listaIndexPed.qtdIndex-1,sizeof(IndexPedido),comparaIndexPedido);
     imprimir_lista_index_pedido(&listaIndexPed);
