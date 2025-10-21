@@ -1,15 +1,5 @@
 #include "./arquivo_indice.h"
 
-void salva_elemento(FILE *arquivo, indice_hash_elemento elemento) {
-    fwrite(&elemento.tamanho, sizeof(elemento.tamanho), 1, arquivo);
-    fwrite(elemento.dados, elemento.tamanho, sizeof(char), arquivo);
-}
-
-void carrega_elemento(FILE *arquivo, indice_hash_elemento *elemento) {
-    fread(&elemento->tamanho, sizeof(elemento->tamanho), 1, arquivo);
-    fread(&elemento->dados, elemento->tamanho, sizeof(char), arquivo);
-}
-
 void salva_indice_hash(FILE *arquivo, indice_hash indice) {
     int i;
     indice_hash_node *node;
@@ -21,8 +11,8 @@ void salva_indice_hash(FILE *arquivo, indice_hash indice) {
 
         while (node) {
             // escreve cada entrada do dicionário
-            salva_elemento(arquivo, node->chave);
-            salva_elemento(arquivo, node->valor);
+            fwrite(&node->chave, sizeof(chave_t), 1, arquivo);
+            fwrite(&node->valor, sizeof(valor_t), 1, arquivo);
             node = node->proximo;
         }
     }
@@ -31,16 +21,53 @@ void salva_indice_hash(FILE *arquivo, indice_hash indice) {
 
 void carrega_indice_hash(FILE *arquivo, indice_hash *indice) {
     int i;
-    indice_hash_elemento chave, valor;
+    chave_t chave;
+    valor_t valor;
     fread(&i, sizeof(indice->tamanho), 1, arquivo);
 
-    *indice = cria_indice_hash(i);
+    *indice = cria_indice_hash();
 
     for (i = 0; i < indice->tamanho; i++) {
         // recarrega nós do arquivo
-        carrega_elemento(arquivo, &chave);
-        carrega_elemento(arquivo, &valor);
-
+        fread(&chave, sizeof(chave_t), 1, arquivo);
+        fread(&valor, sizeof(valor_t), 1, arquivo);
         insere_indice_hash(indice, chave, valor);
+    }
+}
+
+
+// salva indice árvore B+ no arquivo
+void salva_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
+    int i;
+
+    if (!arvore) {
+        return;
+    }
+
+    fwrite(&arvore->num_chaves, sizeof(arvore->num_chaves), 1, arquivo);
+
+    for (i = 0; i <= arvore->num_chaves; i++) {
+        if (!arvore->folha) {
+            salva_indice_arvorebp(arquivo, arvore->filhos[i]);
+        }
+
+        if (i < arvore->num_chaves) {
+            fwrite(&arvore->chaves[i], sizeof(chave_t), 1, arquivo);
+            fwrite(&arvore->valores[i], sizeof(valor_t), 1, arquivo);
+        }
+    }
+}
+
+// carrega indice árvore B+ do arquivo
+void carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
+    chave_t chave;
+    valor_t valor;
+    indice_arvorebp *arvore;
+
+    arvore = cria_indice_arvorebp();
+
+    while (fread(&chave, sizeof(chave_t), 1, arquivo)
+        && fread(&valor, sizeof(valor_t), 1, arquivo)) {
+        insere_indice_arvorebp(arvore, chave, valor);
     }
 }
