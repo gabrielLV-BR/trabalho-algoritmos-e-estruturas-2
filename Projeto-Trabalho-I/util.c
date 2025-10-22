@@ -1,5 +1,25 @@
 #include "./util.h"
 
+unsigned long str_para_long(const char *str) {
+    unsigned long resultado = 0;
+
+    while ((*str) != '\0') {
+        resultado = resultado * 10 + (*str - '0');
+        str++;
+    }
+
+    return resultado;
+}
+
+array cria_array(int num_elementos, void *dados) {
+    array arr;
+
+    arr.num_elementos = num_elementos;
+    arr.dados = dados;
+
+    return arr;
+}
+
 chave_t hash_str(const char* str) {
     int acc = 1;
 

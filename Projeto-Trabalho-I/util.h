@@ -3,8 +3,21 @@
 
 #define NOT_FOUND (-1)
 
-typedef unsigned int chave_t;
-typedef unsigned int valor_t;
+#define ARQUIVO_PRODUTOS ("produto.bin")
+#define ARQUIVO_PEDIDOS ("pedido.bin")
+#define ARQUIVO_ASSOCIACAO ("associacao.bin")
+
+typedef unsigned long chave_t;
+typedef unsigned long valor_t;
+
+typedef struct array_t {
+    int num_elementos;
+    void *dados;
+} array;
+
+unsigned long str_para_long(const char *str);
+
+array cria_array(int num_elementos, void *dados);
 
 // realiza o hash de uma string
 chave_t hash_str(const char *str);

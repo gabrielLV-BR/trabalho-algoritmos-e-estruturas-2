@@ -21,7 +21,7 @@ indice_hash_node* busca_indice_hash_node(indice_hash *indice, chave_t chave) {
     node = indice->valores[idx];
 
     // iteramos toda a lista enquanto não encontrarmos a mesma chave
-    while (node && !igual(node->chave, chave)) node = node->proximo;
+    while (node && node->chave != chave) node = node->proximo;
 
     return node;
 }
@@ -45,7 +45,7 @@ indice_hash_node *remove_node(indice_hash_node *node, chave_t chave) {
         return NULL;
     }
 
-    if (igual(node->chave, chave)) {
+    if (node->chave == chave) {
         proximo = node->proximo;
         libera_node(node);
         return proximo;

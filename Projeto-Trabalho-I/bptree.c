@@ -4,6 +4,10 @@
 
 #include "bptree.h"
 
+iterador_arvorebp iterador_vazio() {
+    return (iterador_arvorebp){0};
+}
+
 indice_arvorebp* _indice_arvorebp_cria_node(int folha) {
     indice_arvorebp *node = calloc(1, sizeof(indice_arvorebp));
     node->folha = folha;
@@ -12,10 +16,10 @@ indice_arvorebp* _indice_arvorebp_cria_node(int folha) {
 }
 
 indice_arvorebp* cria_indice_arvorebp() {
-    return _indice_arvorebp_cria_node(0);
+    return _indice_arvorebp_cria_node(1);
 }
 
-indice_arvorebp_node* _indice_arvorebp_busca_folha(indice_arvorebp_node *raiz, chave_t chave) {
+indice_arvorebp_node* busca_folha_indice_arvorebp(indice_arvorebp_node *raiz, chave_t chave) {
     int i;
 
     if (!raiz) {
@@ -31,24 +35,33 @@ indice_arvorebp_node* _indice_arvorebp_busca_folha(indice_arvorebp_node *raiz, c
     return raiz;
 }
 
-int busca_indice_arvorebp(indice_arvorebp *raiz, chave_t chave) {
+valor_t busca_indice_arvorebp(indice_arvorebp* raiz, chave_t chave) {
+    return valor_iterador_arvorebp(busca_muitos_indice_arvorebp(raiz, chave));
+}
+
+iterador_arvorebp busca_muitos_indice_arvorebp(indice_arvorebp_node* raiz, chave_t chave) {
+    iterador_arvorebp iterador;
     if (!raiz) {
-        return NULL;
+        return iterador_vazio();
     }
 
-    indice_arvorebp_node *folha = _indice_arvorebp_busca_folha(raiz, chave);
+    indice_arvorebp_node *folha = busca_folha_indice_arvorebp(raiz, chave);
     
     if (!folha) {
-        return NULL;
+        return iterador_vazio();
     }
 
     for (int i = 0; i < folha->num_chaves; i++) {
         if (folha->chaves[i] == chave) {
-            return folha->valores[i];
+            iterador.i_atual = i;
+            iterador.chave = chave;
+            iterador.folha = folha;
+
+            return iterador;
         }
     }
 
-    return NULL;
+    return iterador_vazio();
 }
 
 void inserir_em_folha(indice_arvorebp_node *folha, chave_t chave, valor_t valor) {
@@ -151,7 +164,7 @@ indice_arvorebp *insere_indice_arvorebp(indice_arvorebp *raiz, chave_t chave, va
         return r;
     }
 
-    folha = _indice_arvorebp_busca_folha(raiz, chave);
+    folha = busca_folha_indice_arvorebp(raiz, chave);
     
     inserir_em_folha(folha, chave, valor);
     
@@ -220,6 +233,112 @@ void exclui_indice_arvorebp(indice_arvorebp *raiz) {
     free(raiz);
 }
 
+int indice_arvorebp_encontra_chave(indice_arvorebp_node *no, chave_t chave) {
+    int i;
+    for (i = 0; i < no->num_chaves && no->chaves[i] < chave; i++);
+    return i;
+}
+
+void remove_indice_arvorebp(indice_arvorebp_node *folha, chave_t chave) {
+    int i = indice_arvorebp_encontra_chave(folha, chave);
+
+    if (i == folha->num_chaves || folha->chaves[i] != chave) return;
+
+    for (; i < folha->num_chaves - 1; i++) {
+        folha->chaves[i] = folha->chaves[i + 1];
+        folha->valores[i] = folha->valores[i + 1];
+    }
+    folha->num_chaves--;
+}
+
+void funde_folhas_arvorebp(indice_arvorebp_node *esq, indice_arvorebp_node *dir, chave_t chave_pai) {
+    for (int i = 0; i < dir->num_chaves; i++) {
+        esq->chaves[esq->num_chaves + i] = dir->chaves[i];
+        esq->valores[esq->num_chaves + i] = dir->valores[i];
+    }
+    esq->num_chaves += dir->num_chaves;
+    esq->proximo = dir->proximo;
+    free(dir);
+}
+
+void remove_interno_arvorebp(indice_arvorebp_node *no, int indice) {
+    for (int i = indice; i < no->num_chaves - 1; i++) {
+        no->chaves[i] = no->chaves[i + 1];
+        no->filhos[i + 1] = no->filhos[i + 2];
+    }
+    no->num_chaves--;
+}
+
+indice_arvorebp* rebalancea_arvorebp(indice_arvorebp *raiz, indice_arvorebp_node *no) {
+    if (no == NULL) return raiz;
+
+    if (no->num_chaves >= MIN_CHAVES || no->pai == NULL)
+        return raiz;
+
+    indice_arvorebp_node *pai = no->pai;
+    int i;
+    for (i = 0; i <= pai->num_chaves; i++)
+        if (pai->filhos[i] == no) break;
+
+    indice_arvorebp_node *esq = (i > 0) ? pai->filhos[i - 1] : NULL;
+    indice_arvorebp_node *dir = (i < pai->num_chaves) ? pai->filhos[i + 1] : NULL;
+
+    if (esq && esq->num_chaves > MIN_CHAVES) {
+        // Pega emprestado da esquerda
+        for (int j = no->num_chaves; j > 0; j--) {
+            no->chaves[j] = no->chaves[j - 1];
+            no->valores[j] = no->valores[j - 1];
+        }
+        no->chaves[0] = esq->chaves[esq->num_chaves - 1];
+        no->valores[0] = esq->valores[esq->num_chaves - 1];
+        esq->num_chaves--;
+        pai->chaves[i - 1] = no->chaves[0];
+        no->num_chaves++;
+    }
+    else if (dir && dir->num_chaves > MIN_CHAVES) {
+        // Pega emprestado da direita
+        no->chaves[no->num_chaves] = dir->chaves[0];
+        no->valores[no->num_chaves] = dir->valores[0];
+        no->num_chaves++;
+        for (int j = 0; j < dir->num_chaves - 1; j++) {
+            dir->chaves[j] = dir->chaves[j + 1];
+            dir->valores[j] = dir->valores[j + 1];
+        }
+        dir->num_chaves--;
+        pai->chaves[i] = dir->chaves[0];
+    }
+    else if (esq) {
+        funde_folhas_arvorebp(esq, no, pai->chaves[i - 1]);
+        remove_interno_arvorebp(pai, i - 1);
+        free(no);
+        raiz = rebalancea_arvorebp(raiz, pai);
+    }
+    else if (dir) {
+        funde_folhas_arvorebp(no, dir, pai->chaves[i]);
+        remove_interno_arvorebp(pai, i);
+        free(dir);
+        raiz = rebalancea_arvorebp(raiz, pai);
+    }
+
+    if (pai == raiz && pai->num_chaves == 0) {
+        raiz = pai->filhos[0];
+        raiz->pai = NULL;
+        free(pai);
+    }
+
+    return raiz;
+}
+
+indice_arvorebp* remover_indice_arvorebp(indice_arvorebp *raiz, chave_t chave) {
+    if (!raiz) return NULL;
+
+    indice_arvorebp_node *folha = busca_folha_indice_arvorebp(raiz, chave);
+    if (!folha) return raiz;
+
+    remove_indice_arvorebp(folha, chave);
+    raiz = rebalancea_arvorebp(raiz, folha);
+    return raiz;
+}
 
 void imprimir_arvore(indice_arvorebp *raiz) {
     if (!raiz) { printf("<vazia>\n"); return; }
@@ -260,6 +379,35 @@ void imprimir_arvore(indice_arvorebp *raiz) {
         }
     }
     free(fila);
+}
+
+int possui_valor_iterador_arvorebp(iterador_arvorebp *iterador) {
+    if (!iterador->folha) {
+        return 0;
+    }
+
+    return iterador->chave == iterador->folha->chaves[iterador->i_atual];
+}
+
+void avanca_iterador_arvorebp(iterador_arvorebp *iterador) {
+    if (!possui_valor_iterador_arvorebp(iterador)) {
+        return;
+    }
+
+    iterador->i_atual++;
+
+    if (iterador->i_atual > iterador->folha->num_chaves) {
+        iterador->i_atual = 0;
+        iterador->folha = iterador->folha->proximo;
+    }
+}
+
+chave_t valor_iterador_arvorebp(iterador_arvorebp iterador) {
+    if (!iterador.folha) {
+        return NOT_FOUND;
+    }
+
+    return iterador.folha->valores[iterador.i_atual];
 }
 
 // exemplo de utilização
