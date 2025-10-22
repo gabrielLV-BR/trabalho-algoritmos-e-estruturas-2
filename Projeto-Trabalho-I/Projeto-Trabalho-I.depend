@@ -28,8 +28,38 @@
 	<stdio.h>
 	"./hash.h"
 
-1760930955 source:c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\main.c
+1761107583 source:c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\main.c
+	"menuTeste.h"
+
+1761106363 c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\types.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
+
+1761107075 source:c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\pedido.c
+	"types.h"
+	"sort.h"
+	"pedido.h"
+
+1761106683 c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\sort.h
+	"types.h"
+
+1761106885 c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\pedido.h
+	"types.h"
+
+1761107174 source:c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\produto.c
+	"types.h"
+	"sort.h"
+	"produto.h"
+
+1761106821 c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\produto.h
+	"types.h"
+
+1761106976 source:c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\sort.c
+	"sort.h"
+
+1761107443 c:\repos\trabalho-algoritmos-e-estruturas-2\projeto-trabalho-i\menuteste.h
+	"types.h"
+	"pedido.h"
+	"produto.h"
 
