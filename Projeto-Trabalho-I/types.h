@@ -1,10 +1,12 @@
 #ifndef TYPES_H_INCLUDED
 #define TYPES_H_INCLUDED
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+typedef unsigned long id_pedido;
+typedef unsigned long id_produto;
+
 
 typedef struct {
     char data[11];
@@ -69,6 +71,18 @@ typedef struct {
     int qtdIndex;
 } ListaIndexProduto;
 
+typedef struct {
+    char id_pedido[20];
+    int  start;   /* posição inicial no arquivo AssociacaoOrdenada.bin */
+    int  count;   /* quantidade de associações desse id_pedido */
+} IndexAssociacao;
+
+typedef struct {
+    char id_produto[20];
+    int  posicao;  /* usado em níveis >1 para apontar bloco no nível inferior */
+    int  start;    /* nível 1: início no arquivo ordenado */
+    int  count;    /* nível 1: quantidade no arquivo ordenado */
+} IndexAssocProd;
 
 
 #endif // TYPES_H_INCLUDED

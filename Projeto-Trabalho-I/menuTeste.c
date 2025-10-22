@@ -1,35 +1,44 @@
 #include "menuTeste.h"
-void menuTeste(){
+#include <stdio.h>
+#include <string.h>
 
-    int nivelPedido = 0, nivelProduto = 0;
+static void format_centavos(long c, char out[32]) {
+    long a = c < 0 ? -c : c, r = a % 100, i = a / 100;
+    sprintf(out, "%s%ld.%02ld", (c < 0) ? "-" : "", i, r);
+}
+
+void menuTeste() {
+    int nivelPedido  = organiza_indice_pedido();
+    int nivelProduto = organiza_indice_produto();
+
+    organiza_indice_associacao();
+
+    int nivelAssocProd = organiza_indice_associacao_produto();
+
     int opPrincipal = 1, opSecundario = 1;
     char idPesquisa[20];
     Pedido p;
     Produto prod;
     int posicao = 0;
 
-    nivelPedido = organiza_indice_pedido();
-    nivelProduto = organiza_indice_produto();
-
-    while (opPrincipal != 0)
-    {
+    while (opPrincipal != 0) {
         printf("\n=========================================");
         printf("\n\tMENU PRINCIPAL");
         printf("\n=========================================");
         printf("\n1 - Gerenciar Pedidos");
         printf("\n2 - Gerenciar Produtos");
+        printf("\n3 - Pedido com maior total? (via associacao de ID_PEDIDO)");
+        printf("\n4 - Produto mais vendido? (via indice de associacao de ID_PRODUTO)");
         printf("\n0 - Sair");
         printf("\n-----------------------------------------");
         printf("\nEscolha uma opcao: ");
         scanf("%d", &opPrincipal);
         scanf("%*c");
 
-        switch (opPrincipal)
-        {
-        case 1:
+        switch (opPrincipal) {
+        case 1: {
             opSecundario = 1;
-            while (opSecundario != 0)
-            {
+            while (opSecundario != 0) {
                 printf("\n\n======= MENU DE PEDIDOS =======");
                 printf("\n1 - Inserir Pedido");
                 printf("\n2 - Excluir Pedido");
@@ -40,8 +49,7 @@ void menuTeste(){
                 scanf("%d", &opSecundario);
                 scanf("%*c");
 
-                switch (opSecundario)
-                {
+                switch (opSecundario) {
                 case 1:
                     printf("\nDigite o ID do pedido: ");
                     scanf("%19s", p.id_pedido);
@@ -53,13 +61,11 @@ void menuTeste(){
                     printf("\nID: %s\nData: %s\nPreco: %s\n", p.id_pedido, p.data, p.preco);
                     inserir_pedido(p, nivelPedido);
                     break;
-
                 case 2:
                     printf("\nDigite o ID do pedido a excluir: ");
                     scanf("%19s", idPesquisa);
                     excluir_pedido(idPesquisa, nivelPedido);
                     break;
-
                 case 3:
                     posicao = 0;
                     printf("\nDigite o ID do pedido a pesquisar: ");
@@ -67,22 +73,20 @@ void menuTeste(){
                     printf("\n[INFO] Pesquisando pedido ID=%s...\n", idPesquisa);
                     {
                         int resultado = pesquisa_por_id_pedido(idPesquisa, nivelPedido, &posicao);
-                        if (resultado >= 0)      printf("\n[OK] Pedido encontrado na posicao %d.\n", resultado);
+                        if (resultado >= 0)       printf("\n[OK] Pedido encontrado na posicao %d.\n", resultado);
                         else if (resultado == -1) printf("\n[ERRO] Pedido nao encontrado.\n");
                         else                      printf("\n[ERRO] Falha na pesquisa.\n");
                     }
                     break;
-
                 case 0: printf("\nRetornando ao menu principal...\n"); break;
                 default: printf("\nOpcao invalida.\n");
                 }
             }
             break;
-
-        case 2:
+        }
+        case 2: {
             opSecundario = 1;
-            while (opSecundario != 0)
-            {
+            while (opSecundario != 0) {
                 printf("\n\n======= MENU DE PRODUTOS =======");
                 printf("\n1 - Inserir Produto");
                 printf("\n2 - Excluir Produto");
@@ -93,8 +97,7 @@ void menuTeste(){
                 scanf("%d", &opSecundario);
                 scanf("%*c");
 
-                switch (opSecundario)
-                {
+                switch (opSecundario) {
                 case 1:
                     printf("\nDigite o ID do produto: ");
                     scanf("%19s", prod.id_produto);
@@ -131,9 +134,42 @@ void menuTeste(){
                 }
             }
             break;
+        }
+        case 3: { // Pedido com maior total (via associacao por id_pedido)
+            Pedido pedMax; long totalCentavos;
+            int pos = pedido_maior_total_por_associacao_index(nivelPedido, nivelProduto,
+                                                              &pedMax, &totalCentavos);
+            if (pos >= 0) {
+                char buf[32]; format_centavos(totalCentavos, buf);
+                printf("\n[OK] Maior pedido: ID=%s  Data=%s  Total=%s  (pos=%d)\n",
+                       pedMax.id_pedido, pedMax.data, buf, pos);
+            } else {
+                puts("\n[ERRO] Nao foi possivel calcular o maior total.");
+            }
+            break;
+        }
+        case 4: { // <<< NOVO: Produto mais vendido (via indice por id_produto)
+            Produto pmax; long qtd = 0;
+            if (nivelAssocProd < 1) {
+                // tenta (re)construir se algo falhou antes
+                nivelAssocProd = organiza_indice_associacao_produto(100);
+            }
+            int pos = produto_mais_vendido_via_indice(nivelProduto, &pmax, &qtd);
+            if (pos >= 0) {
+                printf("\n[OK] Produto mais vendido:");
+                printf("\nID=%s  Alias=%s  Qtd=%ld  (pos=%d)\n",
+                       pmax.id_produto, pmax.alias, qtd, pos);
+            } else {
+                puts("\n[ERRO] Nao foi possivel obter o produto mais vendido.");
+            }
+            break;
+        }
+        case 0:
+            printf("\nEncerrando o programa...\n");
+            break;
 
-        case 0: printf("\nEncerrando o programa...\n"); break;
-        default: printf("\nOpcao invalida.\n");
+        default:
+            printf("\nOpcao invalida.\n");
         }
     }
     return;

@@ -20,3 +20,18 @@ int comparaIndexProduto(const void *a, const void *b) {
     const IndexProduto *p2 = (const IndexProduto*)b;
     return strcmp(p1->id_produto, p2->id_produto);
 }
+int cmp_assoc_by_pedido(const void *a, const void *b){
+    const Associacao *A = (const Associacao*)a;
+    const Associacao *B = (const Associacao*)b;
+    int c = strcmp(A->id_pedido, B->id_pedido);
+    if (c) return c;
+    return strcmp(A->id_produto, B->id_produto);
+}
+
+int cmp_assoc_by_prod(const void *a, const void *b) {
+    const Associacao *A = (const Associacao*)a;
+    const Associacao *B = (const Associacao*)b;
+    int c = strcmp(A->id_produto, B->id_produto);
+    if (c) return c;
+    return strcmp(A->id_pedido, B->id_pedido);
+}
