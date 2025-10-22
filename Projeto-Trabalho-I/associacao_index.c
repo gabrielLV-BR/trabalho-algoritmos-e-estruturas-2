@@ -93,7 +93,6 @@ int organiza_indice_associacao(void)
 
 int pesquisa_por_id_associacao(const char id_pedido[20], int *start, int *count)
 {
-
     if (start) *start = 0;
     if (count) *count = 0;
 
@@ -147,3 +146,39 @@ int pesquisa_por_id_associacao(const char id_pedido[20], int *start, int *count)
     return -1; /* não encontrado */
 }
 
+array pesquisa_produtos_associacao(char id_pedido[20]) {
+    array arr = {0};
+    Associacao assoc;
+    FILE *arquivo_assoc;
+
+    int inicio = 0, tamanho = 0, i = 0;
+
+    if (pesquisa_por_id_associacao(id_pedido, &inicio, &tamanho) != 0)
+    {
+        fprintf(stderr, "Ocorreu um erro ao buscar o ID da associação\n.");
+        return arr;
+    }
+
+    arquivo_assoc = fopen(ARQUIVO_ASSOCIACAO, "rb");
+    if (!arquivo_assoc) {
+        fprintf(stderr, "Ocorreu um erro ao abrir o arquivo de associações.\n");
+        return arr;
+    }
+
+    arr.num_elementos = tamanho;
+    arr.dados = malloc(arr.num_elementos * sizeof(Associacao));
+
+    fseek(arquivo_assoc, inicio * sizeof(Associacao), SEEK_SET);
+    if (fread(arr.dados, sizeof(Associacao), arr.num_elementos, arquivo_assoc) != arr.num_elementos)
+    {
+        fprintf(stderr, "Ocorreu um erro ao ler todos dados de associações.\n");
+        free(arr.dados);
+        arr.num_elementos = 0;
+        arr.dados = NULL;
+    } else {
+        printf("%d produtos no pedido.\n", i);
+    }
+
+    fclose(arquivo_assoc);
+    return arr;
+}

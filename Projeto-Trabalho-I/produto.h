@@ -15,4 +15,6 @@ int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao);
 int inserir_produto(Produto p, int nivel);
 void excluir_produto(char id[20], int nivel);
 
+Produto busca_por_produto(char id_produto[20], int nivel);
+
 #endif // PRODUTO_H_INCLUDED

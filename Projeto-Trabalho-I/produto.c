@@ -1,6 +1,7 @@
 #include "types.h"
 #include "sort.h"
 #include "produto.h"
+#include "util.h"
 
 void adicionar_produto(ListaProduto *lp, Produto novoProduto)
 {
@@ -526,4 +527,31 @@ void excluir_produto(char id[20], int nivel)
     fflush(arquivoIndice); fflush(arquivoDados);
     fclose(arquivoIndice); fclose(arquivoDados);
     printf("\n[FINALIZADO] Exclusao concluida com sucesso.\n");
+}
+
+Produto busca_por_produto(char id_produto[20], int nivel) {
+    Produto produto = {0};
+    FILE *arquivo = fopen(ARQUIVO_PRODUTOS, "rb");
+    int posicao = 0;
+
+    if (!arquivo) {
+        fprintf(stderr, "Ocorreu um erro ao abrir o arquivo de produtos.\n");
+        return produto;
+    }
+
+    posicao = pesquisa_por_id_produto(id_produto, nivel, &posicao);
+
+    if (posicao == -1) {
+        fprintf(stderr, "Ocorreu um erro ao buscar o produto %s.\n", id_produto);
+        fclose(arquivo);
+        return produto;
+    }
+
+    fseek(arquivo, posicao * sizeof(Produto), SEEK_SET);
+    if (!fread(&produto, sizeof(Produto), 1, arquivo)) {
+        fprintf(stderr, "Ocorreu um erro ao ler o produto do arquivo de dados.\n");
+    }
+
+    fclose(arquivo);
+    return produto;
 }

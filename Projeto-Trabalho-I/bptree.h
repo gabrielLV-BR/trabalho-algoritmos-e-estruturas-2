@@ -44,9 +44,9 @@ void imprimir_arvore(indice_arvorebp *raiz);
 
 // iterador
 
-int possui_valor_iterador_arvorebp(iterador_arvorebp *iterador);
-
 void avanca_iterador_arvorebp(iterador_arvorebp *iterador);
+
+int possui_valor_iterador_arvorebp(iterador_arvorebp iterador);
 
 chave_t valor_iterador_arvorebp(iterador_arvorebp iterador);
 

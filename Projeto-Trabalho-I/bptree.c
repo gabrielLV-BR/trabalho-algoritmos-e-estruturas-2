@@ -340,57 +340,16 @@ indice_arvorebp* remover_indice_arvorebp(indice_arvorebp *raiz, chave_t chave) {
     return raiz;
 }
 
-void imprimir_arvore(indice_arvorebp *raiz) {
-    if (!raiz) { printf("<vazia>\n"); return; }
-    size_t cap = 256;
-    indice_arvorebp_node **fila = malloc(sizeof(indice_arvorebp_node*) * cap);
-    size_t ini=0, fim=0;
-    fila[fim++] = raiz;
-    fila[fim++] = NULL;
-    while (ini < fim) {
-        indice_arvorebp_node *n = fila[ini++];
-        if (!n) {
-            printf("\n");
-            if (ini < fim) fila[fim++] = NULL;
-            continue;
-        }
-        if (n->folha) {
-            printf("[F(");
-            for (int i=0;i<n->num_chaves;i++) {
-                printf("%d", n->chaves[i]);
-                if (i+1<n->num_chaves) printf(",");
-            }
-            printf(")] ");
-        } else {
-            printf("[I(");
-            for (int i=0;i<n->num_chaves;i++) {
-                printf("%d", n->chaves[i]);
-                if (i+1<n->num_chaves) printf(",");
-            }
-            printf(")] ");
-        }
-        for (int i=0;i<=n->num_chaves;i++) {
-            if (n->filhos[i]) {
-                if (fim >= cap) {
-                    cap *= 2; fila = realloc(fila, sizeof(indice_arvorebp_node*) * cap);
-                }
-                fila[fim++] = n->filhos[i];
-            }
-        }
-    }
-    free(fila);
-}
-
-int possui_valor_iterador_arvorebp(iterador_arvorebp *iterador) {
-    if (!iterador->folha) {
+int possui_valor_iterador_arvorebp(iterador_arvorebp iterador) {
+    if (!iterador.folha) {
         return 0;
     }
 
-    return iterador->chave == iterador->folha->chaves[iterador->i_atual];
+    return iterador.chave == iterador.folha->chaves[iterador.i_atual];
 }
 
 void avanca_iterador_arvorebp(iterador_arvorebp *iterador) {
-    if (!possui_valor_iterador_arvorebp(iterador)) {
+    if (!possui_valor_iterador_arvorebp(*iterador)) {
         return;
     }
 

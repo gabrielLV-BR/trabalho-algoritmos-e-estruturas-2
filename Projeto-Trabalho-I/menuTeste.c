@@ -1,4 +1,6 @@
 #include "menuTeste.h"
+#include "associacao.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -29,6 +31,7 @@ void menuTeste() {
         printf("\n2 - Gerenciar Produtos");
         printf("\n3 - Pedido com maior total? (via associacao de ID_PEDIDO)");
         printf("\n4 - Produto mais vendido? (via indice de associacao de ID_PRODUTO)");
+        printf("\n5 - Produtos associados ao pedido");
         printf("\n0 - Sair");
         printf("\n-----------------------------------------");
         printf("\nEscolha uma opcao: ");
@@ -162,6 +165,44 @@ void menuTeste() {
             } else {
                 puts("\n[ERRO] Nao foi possivel obter o produto mais vendido.");
             }
+            break;
+        }
+        case 5: {
+            int i;
+            Associacao *associacoes;
+            Produto produto;
+            array lista_associacoes;
+
+            printf("\nDigite o ID do pedido a buscar: ");
+            scanf("%19s", idPesquisa);
+
+            lista_associacoes = pesquisa_produtos_associacao(idPesquisa);
+
+            if (!lista_associacoes.num_elementos) {
+                fprintf(stderr, "Nenhum produto vinculado ao pedido %s encontrado.\n", idPesquisa);
+                continue;
+            }
+
+            associacoes = (Associacao*) lista_associacoes.dados;
+            for (i = 0; i < lista_associacoes.num_elementos; i++) {
+                produto = busca_por_produto(associacoes[i].id_produto, nivelProduto);
+
+                if (!produto.id_produto) {
+                    fprintf(stderr,
+                        "Ocorreu um erro ao buscar o produto nº%d (%s)\n, ignorando-o.\n",
+                        i,
+                        associacoes[i].id_produto);
+                    continue;
+                }
+
+                printf(" - %2d) %ld (%s) (%s)\n", i + 1,
+                    associacoes[i].id_pedido,
+                    produto.material,
+                    produto.preco);
+            }
+
+            printf("%d produtos no pedido.\n", lista_associacoes.num_elementos);
+            free(lista_associacoes.dados);
             break;
         }
         case 0:

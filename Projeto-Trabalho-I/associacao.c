@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+indice_arvorebp* indice_associacao;
+
 void carrega_indice_associacao(FILE *arquivo) {
     Associacao assoc;
     chave_t chave;
@@ -52,6 +54,15 @@ lista_produtos* insere_lista(id_produto produto, lista_produtos* proximo) {
     return elem;
 }
 
+void limpa_lista_produtos(lista_produtos* lista) {
+    if (!lista) {
+        return;
+    }
+
+    limpa_lista_produtos(lista->proximo);
+    free(lista);
+}
+
 void insere_associacao_no_indice(Associacao associacao) {
     chave_t chave = str_para_long(associacao.id_pedido);
     valor_t valor = str_para_long(associacao.id_produto);
@@ -65,7 +76,7 @@ lista_produtos* produtos_associados_a_pedido(id_pedido pedido) {
 
     iterador = busca_muitos_indice_arvorebp(indice_associacao, pedido);
 
-    while (possui_valor_iterador_arvorebp(&iterador)) {
+    while (possui_valor_iterador_arvorebp(iterador)) {
         lista = insere_lista(valor_iterador_arvorebp(iterador), lista);
         avanca_iterador_arvorebp(&iterador);
     }

@@ -22,4 +22,6 @@ void insere_associacao_no_indice(Associacao associacao);
 
 lista_produtos* produtos_associados_a_pedido(id_pedido pedido);
 
+void limpa_lista_produtos(lista_produtos* lista);
+
 #endif // __associacao_h__

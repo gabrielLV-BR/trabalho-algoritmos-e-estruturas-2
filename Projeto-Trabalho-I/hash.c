@@ -72,9 +72,8 @@ void insere_indice_hash(indice_hash *indice, chave_t chave, valor_t valor) {
     int idx = chave % indice->tamanho;
 
     // elemento já existe
-    node = busca_indice_hash(indice, chave); 
+    node = busca_indice_hash_node(indice, chave); 
     if (node) {
-
         if (valor)
 
         node->contagem++;
@@ -91,11 +90,8 @@ void insere_indice_hash(indice_hash *indice, chave_t chave, valor_t valor) {
         return;
     }
 
-    // ...caso contrário, busca último elemento da lista
-    while (node->proximo) node = node->proximo;
-
-    // insere chave e valor na última posição
-    node->proximo = novo;
+    novo->proximo = indice->valores[idx];
+    indice->valores[idx] = novo;
 }
 
 valor_t* busca_indice_hash(indice_hash *indice, chave_t chave) {

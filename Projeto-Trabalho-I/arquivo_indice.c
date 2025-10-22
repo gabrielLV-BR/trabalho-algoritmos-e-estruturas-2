@@ -70,22 +70,9 @@ void carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
     while (fscanf(arquivo, "%20s", chave_str)
         && fscanf(arquivo, "%20s", valor_str)) {
         
-        fprintf("Chave lida: %s\n", chave_str);
-        fprintf("Valor lido: %s\n", valor_str);
-        
         chave = str_para_long(chave_str);
         valor = str_para_long(valor_str);
 
-
-        fprintf("Chave convertida: %ld\n", chave);
-        fprintf("Valor convertido: %ld\n", valor);
-
         insere_indice_arvorebp(arvore, chave, valor);
     }
-
-
-    // while (fread(&chave, sizeof(chave_t), 1, arquivo)
-    //     && fread(&valor, sizeof(valor_t), 1, arquivo)) {
-    //     insere_indice_arvorebp(arvore, chave, valor);
-    // }
 }
