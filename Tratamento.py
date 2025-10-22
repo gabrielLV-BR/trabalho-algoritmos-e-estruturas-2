@@ -4,7 +4,7 @@ import os
 import struct
 
 # Caminho base da pasta
-base_path = r"D:\repos\trabalho-algoritmos-e-estruturas-2\Projeto-Trabalho-I"
+base_path = r"C:\Users\jmartins\repos\trabalho-algoritmos-e-estruturas-2\Projeto-Trabalho-I"
 
 # Garante que a pasta existe
 os.makedirs(base_path, exist_ok=True)

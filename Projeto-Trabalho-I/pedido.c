@@ -74,7 +74,7 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
         if(qtdEscrita != (size_t)li->qtdIndex) printf("\nNem todos os indices foram gravados corretamente");
         fclose(arquivo);
         *qtdBlocos = 0;
-        printf("\nNivel %d criado: %d indices (%d blocos)\n", *nivel, li->qtdIndex, *qtdBlocos);
+
         (*nivel)++;
         return li->qtdIndex;
     }
@@ -105,7 +105,7 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
     fclose(arquivoNovo);
 
     (*nivel)++;
-    printf("\nNivel %d criado: %d indices (%d blocos)\n", *nivel - 1, temp.qtdIndex, *qtdBlocos);
+
     return temp.qtdIndex;
 }
 
@@ -125,12 +125,12 @@ int organiza_indice_pedido()
 int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
 {
     char nome[50]; sprintf(nome, "IndicePedidoNivel-%d.bin", nivel);
-    printf("\n[Nivel %d] Procurando no bloco (posicao %d)...", nivel, *posicao);
+
 
     IndexPedido indexTemp; int cursor =0;
 
     if(nivel > 1){
-        printf("\nENTROU NO IF nivel > 1");
+
         FILE *arquivo = fopen(nome,"rb");
         if(!arquivo){ printf("\nErro ao abrir arquivo"); return -2; }
         if (fseek(arquivo,(*posicao) * (long)sizeof(IndexPedido), SEEK_SET) != 0){
@@ -144,7 +144,7 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
         *posicao = indexTemp.posicao;
         return pesquisa_por_id_pedido(idPedido,nivel-1,posicao);
     }else{
-        printf("\nENTROU NO ELSE nivel < 1");
+
         FILE *arquivo = fopen(nome,"rb");
         if(!arquivo){ printf("\nErro ao abrir arquivo"); return -2; }
 
@@ -162,7 +162,7 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
         posicaoIndice = (*posicao > 0) ? (*posicao)-1 : 0;
 
         if(strcmp(idPedido,indexTemp.id_pedido) == 0 && indexTemp.excluido == 0 ){
-            printf("\nENTROU NO STRCMP ID PEDIDO INDEX.ID PEDIDO && INDEX.EXCLUIDO == 0");
+
             Pedido p; FILE *arquivoPedido = fopen("pedido.bin","rb");
             if (!arquivoPedido){ printf("\nErro ao abrir pedido.bin"); fclose(arquivo); return -2; }
             fseek(arquivoPedido,indexTemp.posicao*(long)sizeof(Pedido),SEEK_SET);
@@ -174,7 +174,7 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
             return indexTemp.posicao;
         }
         else if(indexTemp.excluido == 1){
-            printf("\nENTROU NO ELSE IF INDEX.EXCLUIDO == 1");
+
             Pedido p; FILE *arquivoPedido = fopen("pedido.bin","rb");
             if (!arquivoPedido){ printf("\nErro ao abrir pedido.bin"); fclose(arquivo); return -2; }
             fseek(arquivoPedido,indexTemp.posicao*(long)sizeof(Pedido),SEEK_SET);
@@ -186,7 +186,7 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
             return indexTemp.posicao;
         }
         else if(indexTemp.elo != -1){
-            printf("\nTENTOU CHECAR A EXTENSAO?");
+
             fclose(arquivo);
             Pedido p; FILE *arquivoPedido = fopen("pedido.bin","rb");
             if (!arquivoPedido){ printf("\nErro ao abrir pedido.bin"); return -2; }
@@ -198,7 +198,7 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
             while ( qtdLeitura< indexTemp.qtdExtensao && fread(&p, sizeof(Pedido), 1, arquivoPedido) == 1){
                 printf("\n[DEBUG] Lendo extensao pos=%d | id_pedido=%s", *posicao, p.id_pedido);
                 if (strcmp(idPedido, p.id_pedido) == 0){
-                    printf("\nPedido encontrado (na extensão)\nID: %s\nData: %s\nPreco: %s\n",p.id_pedido, p.data, p.preco);
+
                     fclose(arquivoPedido);
                     return (*posicao);
                 }
@@ -208,26 +208,22 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
             printf("\nPedido não encontrado na extensão (lidos %d de %d)\n", qtdLeitura, maxLeitura);
             return -1;
         } else {
-            printf("\nENTROU NO ELSE DO FIM");
+
             int leituraPos = (posicaoIndice > 0) ? (posicaoIndice - 1) : 0;
-            fseek(arquivo, leituraPos * (long)sizeof(indexTemp), SEEK_SET);
+            fseek(arquivo, (leituraPos) * (long)sizeof(indexTemp), SEEK_SET);
             fread(&indexTemp, sizeof(indexTemp), 1, arquivo);
 
-            printf(
-                "\nINDICE QUE PAROU: %s | ELO %d | EXCLUIDO %d | TAM_EXTENSAO %d | POSICAO ARQ DADOS %d",
-                indexTemp.id_pedido, indexTemp.elo, indexTemp.excluido,
-                indexTemp.qtdExtensao, indexTemp.posicao
-            );
 
-            if (strcmp(idPedido, indexTemp.id_pedido) == 0){
+            if ( (strcmp(idPedido, indexTemp.id_pedido)) == 0 && (indexTemp.excluido != 1)) {
+
                 fclose(arquivo);
-                (*posicao) = indexTemp.elo; // (mantido conforme seu código original)
-                return leituraPos;
+                (*posicao) = leituraPos;
+                return indexTemp.posicao;
             }
 
-            printf("\nCHEGAGEM DA AREA DE EXTENSAO:");
+
             if(indexTemp.elo != -1){
-                printf("\nTENTOU CHECAR A EXTENSAO");
+
                 fclose(arquivo);
                 Pedido p; FILE *arquivoPedido = fopen("pedido.bin","rb");
                 if (!arquivoPedido){ printf("\nErro ao abrir pedido.bin"); return -2; }
@@ -237,19 +233,19 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
                     printf("Erro ao posicionar no bloco %d\n",*posicao); fclose(arquivoPedido); return -2;
                 }
                 while ( qtdLeitura< indexTemp.qtdExtensao && fread(&p, sizeof(Pedido), 1, arquivoPedido) == 1){
-                    printf("\n[DEBUG] Lendo extensao pos=%d | id_pedido=%s", *posicao, p.id_pedido);
+
                     if (strcmp(idPedido, p.id_pedido) == 0){
-                        printf("\nPedido encontrado (na extensão)\nID: %s\nData: %s\nPreco: %s\n",p.id_pedido, p.data, p.preco);
+
                         fclose(arquivoPedido);
                         return (*posicao);
                     }
                     qtdLeitura++; (*posicao)++;
                 }
                 fclose(arquivoPedido);
-                printf("\nPedido não encontrado na extensão (lidos %d de %d)\n", qtdLeitura, maxLeitura);
+
             }
 
-            printf("\nNao foi possivel encontrar pedido.");
+
             (*posicao) = leituraPos;
             fclose(arquivo);
             return -1;
@@ -265,11 +261,12 @@ int inserir_pedido(Pedido p, int nivel)
     printf("\nPedido a inserir: ID=%s | Data=%s | Preco=%s", p.id_pedido, p.data, p.preco);
 
     pesquisa = pesquisa_por_id_pedido(p.id_pedido, nivel, &posicao);
-    printf("\nResultado da pesquisa: %d | Posicao retornada: %d", pesquisa, posicao);
 
-    if (pesquisa == -2){ printf("\n[ERRO] Falha durante a pesquisa no indice."); return -1; }
+
+    if (pesquisa == -2){
+            printf("\n[ERRO] Falha durante a pesquisa no indice.");
+    return -1; }
     else if (pesquisa != -1){
-        printf("\n[AVISO] Pedido ja inserido na posicao: %d", pesquisa);
 
         FILE *arquivoIndice = fopen("IndicePedidoNivel-1.bin", "rb+");
         FILE *arquivoDados  = fopen("pedido.bin", "rb+");
@@ -324,7 +321,6 @@ int inserir_pedido(Pedido p, int nivel)
         printf("\n[FINALIZADO] Insercao concluida.\n");
         return 1;
     } else {
-        printf("\n[CASO] Inserindo novo pedido em posicao livre (%d)...", posicao);
 
         FILE *arquivoIndice = fopen("IndicePedidoNivel-1.bin", "rb+");
         FILE *arquivoDados  = fopen("pedido.bin", "rb+");
@@ -342,7 +338,7 @@ int inserir_pedido(Pedido p, int nivel)
         }
 
         if (indexTemp.elo != -1){
-            printf("\n[CASO] Inserindo na area de extensao existente...");
+
             long posInsercao = (long)indexTemp.elo + indexTemp.qtdExtensao;
             if (indexTemp.qtdExtensao < indexTemp.tamExtensao){
                 fseek(arquivoDados, posInsercao * (long)sizeof(Pedido), SEEK_SET);
@@ -350,13 +346,13 @@ int inserir_pedido(Pedido p, int nivel)
                 indexTemp.qtdExtensao++;
                 fseek(arquivoIndice, posicao * (long)sizeof(IndexPedido), SEEK_SET);
                 fwrite(&indexTemp, sizeof(IndexPedido), 1, arquivoIndice);
-                printf("\n[OK] Pedido inserido na extensao (posicao %ld).", posInsercao);
-                printf("\n[OK] qtdExtensao=%d/%d.", indexTemp.qtdExtensao, indexTemp.tamExtensao);
+
+
             } else {
                 printf("\n[ERRO] Extensao cheia (elo=%d, tam=%d).", indexTemp.elo, indexTemp.tamExtensao);
             }
         } else {
-            printf("\n[CASO] Criando nova area de extensao...");
+
             Pedido vazio; strcpy(vazio.id_pedido, "9999999999999999999"); strcpy(vazio.data, "0000-00-00"); strcpy(vazio.preco, "0.00");
 
             fseek(arquivoDados, 0, SEEK_END);
@@ -372,16 +368,16 @@ int inserir_pedido(Pedido p, int nivel)
             fseek(arquivoIndice, posicao * (long)sizeof(IndexPedido), SEEK_SET);
             fwrite(&indexTemp, sizeof(IndexPedido), 1, arquivoIndice);
 
-            printf("\n[OK] Nova extensao criada (inicio=%ld, tam=%d).", inicioExtensao, tamanhoExtensao);
-            printf("\n[OK] Pedido inserido e indice atualizado.");
+
         }
 
         fflush(arquivoDados); fflush(arquivoIndice);
         fclose(arquivoDados); fclose(arquivoIndice);
-        printf("\n[FINALIZADO] Insercao de novo pedido concluida com sucesso.\n");
+        printf("\n[FINALIZADO]\n");
         return 1;
     }
 }
+
 
 void excluir_pedido(char id[20], int nivel)
 {
@@ -392,8 +388,6 @@ void excluir_pedido(char id[20], int nivel)
     int pesquisa = pesquisa_por_id_pedido(id, nivel, &posicao);
     if (pesquisa == -2){ printf("\n[ERRO] Nao foi possivel realizar a pesquisa pelo id\n"); return; }
     if (pesquisa == -1){ printf("\n[ERRO] Pedido nao encontrado para exclusao.\n"); return; }
-
-    printf("\n[INFO] Pedido localizado em posicao de dados: %d (indice: %d)", pesquisa, posicao);
 
     char nome[50]; sprintf(nome, "IndicePedidoNivel-%d.bin", 1);
     FILE *arquivoIndice = fopen(nome, "rb+");
@@ -419,6 +413,8 @@ void excluir_pedido(char id[20], int nivel)
                 fread(&pExt, sizeof(Pedido), 1, arquivoPedidos);
                 if (strcmp(pExt.id_pedido, id) == 0) {
                     strcpy(pExt.id_pedido, "9999999999999999999");
+                    strcpy(pExt.data, "0000-00-00");
+                    strcpy(pExt.preco, "0.00");
                     fseek(arquivoPedidos, (posAtual + i) * (long)sizeof(Pedido), SEEK_SET);
                     fwrite(&pExt, sizeof(Pedido), 1, arquivoPedidos);
                     fflush(arquivoPedidos);
@@ -429,7 +425,7 @@ void excluir_pedido(char id[20], int nivel)
             fclose(arquivoPedidos);
             if (!encontrado) printf("\n[ERRO] Pedido nao encontrado na area de extensao.");
         }
-        printf("\n[FINALIZADO] Exclusao concluida (indice ja estava excluido).\n");
+        printf("\n[FINALIZADO]\n");
         fclose(arquivoIndice); fclose(arquivoDados); return;
     }
 
@@ -438,29 +434,33 @@ void excluir_pedido(char id[20], int nivel)
         fseek(arquivoIndice, posicao * (long)sizeof(IndexPedido), SEEK_SET);
         fwrite(&indexTemp, sizeof(IndexPedido), 1, arquivoIndice);
         fflush(arquivoIndice);
-        printf("\n[OK] Indice marcado como excluido (posicao %d).", posicao);
+
 
         Pedido p;
         fseek(arquivoDados, indexTemp.posicao * (long)sizeof(Pedido), SEEK_SET);
         fread(&p, sizeof(Pedido), 1, arquivoDados);
-        strcpy(p.id_pedido, "9999999999999999999"); strcpy(p.data, "0000-00-00"); strcpy(p.preco, "0.00");
+        strcpy(p.id_pedido, "9999999999999999999");
+        strcpy(p.data, "0000-00-00");
+        strcpy(p.preco, "0.00");
         fseek(arquivoDados, indexTemp.posicao * (long)sizeof(Pedido), SEEK_SET);
         fwrite(&p, sizeof(Pedido), 1, arquivoDados);
         fflush(arquivoDados);
-        printf("\n[OK] Registro fisico sobrescrito no arquivo de dados (posicao %d).", indexTemp.posicao);
+
     }
     else if (indexTemp.excluido == 0 && strcmp(indexTemp.id_pedido, id) != 0) {
-        printf("\n[DEBUG] Procurando ID na area de extensao...");
+
         if (indexTemp.elo != -1) {
             FILE *arquivoPedidos = fopen("pedido.bin", "rb+");
-            if (!arquivoPedidos) { printf("\n[ERRO] Falha ao abrir pedido.bin"); fclose(arquivoIndice); fclose(arquivoDados); return; }
+            if (!arquivoPedidos){ printf("\n[ERRO] Falha ao abrir pedido.bin"); fclose(arquivoIndice); fclose(arquivoDados); return; }
             Pedido pExt; int posAtual = indexTemp.elo; int encontrado = 0;
-            for (int i = 0; i < indexTemp.qtdExtensao; i++) {
+            for (int i = 0; i < indexTemp.tamExtensao; i++) {
                 fseek(arquivoPedidos, (posAtual + i) * (long)sizeof(Pedido), SEEK_SET);
                 fread(&pExt, sizeof(Pedido), 1, arquivoPedidos);
                 if (strcmp(pExt.id_pedido, id) == 0) {
-                    printf("\n[DEBUG] Pedido encontrado na extensao (pos=%d). Gravando exclusao...", posAtual + i);
-                    strcpy(pExt.id_pedido, "9999999999999999999"); strcpy(pExt.data, "0000-00-00"); strcpy(pExt.preco, "0.00");
+
+                    strcpy(pExt.id_pedido, "9999999999999999999");
+                    strcpy(pExt.data, "0000-00-00");
+                    strcpy(pExt.preco, "0.00");
                     fseek(arquivoPedidos, (posAtual + i) * (long)sizeof(Pedido), SEEK_SET);
                     fwrite(&pExt, sizeof(Pedido), 1, arquivoPedidos);
                     fflush(arquivoPedidos);
@@ -472,35 +472,58 @@ void excluir_pedido(char id[20], int nivel)
                 }
             }
             fclose(arquivoPedidos);
+
             if (encontrado) {
                 fseek(arquivoIndice, posicao * (long)sizeof(IndexPedido), SEEK_SET);
                 fwrite(&indexTemp, sizeof(IndexPedido), 1, arquivoIndice);
                 fflush(arquivoIndice);
-                printf("\n[OK] Indice principal atualizado apos exclusao na extensao.");
-            } else {
-                printf("\n[ERRO] Pedido nao encontrado na area de extensao.");
+
+            }
+        }
+    }
+
+    if (pesquisa && indexTemp.elo != -1) {
+        Pedido pExt; int posAtual = indexTemp.elo; int encontrado = 0;
+        for (int i = 0; i < indexTemp.qtdExtensao; i++) {
+            fseek(arquivoDados, (posAtual + i) * (long)sizeof(Pedido), SEEK_SET);
+            fread(&pExt, sizeof(Pedido), 1, arquivoDados);
+            if (strcmp(pExt.id_pedido, id) == 0) {
+
+                strcpy(pExt.id_pedido, "9999999999999999999");
+                strcpy(pExt.data, "0000-00-00");
+                strcpy(pExt.preco, "0.00");
+                fseek(arquivoDados, (posAtual + i) * (long)sizeof(Pedido), SEEK_SET);
+                fwrite(&pExt, sizeof(Pedido), 1, arquivoDados);
+                fflush(arquivoDados);
+
+                fseek(arquivoDados, (posAtual + i) * (long)sizeof(Pedido), SEEK_SET);
+                fread(&pExt, sizeof(Pedido), 1, arquivoDados);
+                printf("\n[DEBUG] Pos %d agora contem ID=%s", posAtual + i, pExt.id_pedido);
+                encontrado = 1; break;
             }
         }
 
-        if (pesquisa >= indexTemp.elo && indexTemp.elo != -1){
-            printf("\n[INFO] Exclusao de pedido localizado na area de extensao (posicao %d)", pesquisa);
-            FILE *arquivoPedidos = fopen("pedido.bin", "rb+");
-            if (!arquivoPedidos){ printf("\n[ERRO] Falha ao abrir pedido.bin para sobrescrever."); fclose(arquivoIndice); fclose(arquivoDados); return; }
-            Pedido pExt;
-            fseek(arquivoPedidos, pesquisa * (long)sizeof(Pedido), SEEK_SET);
-            fread(&pExt, sizeof(Pedido), 1, arquivoPedidos);
-            printf("\n[DEBUG] Antes da exclusao: ID=%s | Data=%s | Preco=%s", pExt.id_pedido, pExt.data, pExt.preco);
-            strcpy(pExt.id_pedido, "9999999999999999999"); strcpy(pExt.data, "0000-00-00"); strcpy(pExt.preco, "0.00");
-            fseek(arquivoPedidos, pesquisa * (long)sizeof(Pedido), SEEK_SET);
-            fwrite(&pExt, sizeof(Pedido), 1, arquivoPedidos);
-            fflush(arquivoPedidos);
-            printf("\n[OK] Pedido sobrescrito em posicao %d com marcacao de exclusao.", pesquisa);
-            fclose(arquivoPedidos);
-            fflush(arquivoIndice); fflush(arquivoDados);
-            fclose(arquivoIndice); fclose(arquivoDados);
-            printf("\n[FINALIZADO] Exclusao de pedido na area de extensao concluida com sucesso.\n");
-            return;
-        }
+
+        FILE *arquivoPedidos = fopen("pedido.bin", "rb+");
+        if (!arquivoDados){ printf("\n[ERRO] Falha ao abrir pedido.bin para sobrescrever."); fclose(arquivoIndice); fclose(arquivoDados); return; }
+
+        fseek(arquivoDados, pesquisa * (long)sizeof(Pedido), SEEK_SET);
+        fread(&pExt, sizeof(Pedido), 1, arquivoPedidos);
+
+        strcpy(pExt.id_pedido, "9999999999999999999");
+        strcpy(pExt.data, "0000-00-00");
+        strcpy(pExt.preco, "0.00");
+
+        fseek(arquivoPedidos, pesquisa * (long)sizeof(Pedido), SEEK_SET);
+        fwrite(&pExt, sizeof(Pedido), 1, arquivoPedidos);
+        fflush(arquivoPedidos);
+
+
+        fclose(arquivoPedidos);
+        fflush(arquivoIndice); fflush(arquivoDados);
+        fclose(arquivoIndice); fclose(arquivoDados);
+
+        return;
     }
 
     fflush(arquivoIndice); fflush(arquivoDados);

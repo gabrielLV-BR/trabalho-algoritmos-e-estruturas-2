@@ -11,9 +11,6 @@ void menuTeste(){
     nivelPedido = organiza_indice_pedido();
     nivelProduto = organiza_indice_produto();
 
-    printf("\n[INFO] Nivel inicial Pedido: %d", nivelPedido);
-    printf("\n[INFO] Nivel inicial Produto: %d\n", nivelProduto);
-
     while (opPrincipal != 0)
     {
         printf("\n=========================================");
@@ -139,5 +136,5 @@ void menuTeste(){
         default: printf("\nOpcao invalida.\n");
         }
     }
-    return 0;
+    return;
 }

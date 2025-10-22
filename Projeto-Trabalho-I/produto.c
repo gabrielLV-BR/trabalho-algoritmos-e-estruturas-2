@@ -45,7 +45,7 @@ void lerProdutos(const char *nome_arquivo, ListaIndexProduto *li)
             adicionar_index_produto(li, p, cursor);
         cursor++; count++;
     }
-    printf("\nTotal de produtos lidos: %d\n", count);
+
     fclose(f);
 }
 
@@ -61,7 +61,7 @@ int cria_indice_produto(ListaIndexProduto *li, int *nivel, int *qtdBlocos, int t
         if (qtdEscrita != (size_t)li->qtdIndex) printf("\nNem todos os indices de produto foram gravados corretamente");
         fclose(arquivo);
         *qtdBlocos = 0;
-        printf("\nNivel %d criado: %d indices de produto (%d blocos)\n", *nivel, li->qtdIndex, *qtdBlocos);
+
         (*nivel)++; return li->qtdIndex;
     }
 
@@ -91,7 +91,7 @@ int cria_indice_produto(ListaIndexProduto *li, int *nivel, int *qtdBlocos, int t
     fclose(arquivoNovo);
 
     (*nivel)++;
-    printf("\nNivel %d criado: %d indices de produto (%d blocos)\n", *nivel - 1, temp.qtdIndex, *qtdBlocos);
+
     return temp.qtdIndex;
 }
 
@@ -107,19 +107,19 @@ int organiza_indice_produto()
     int qtd = li.qtdIndex;
     while (qtd > 10) qtd = cria_indice_produto(&li, &nivelIndice, &qtdBlocos, tamanhoBloco);
 
-    printf("\n[OK] Indice de produtos organizado. Nivel inicial: %d", nivelIndice - 1);
+
     return nivelIndice - 1;
 }
 
 int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao)
 {
     char nome[50]; sprintf(nome, "IndiceProdutoNivel-%d.bin", nivel);
-    printf("\n[Nivel %d] Procurando no bloco (posicao %d)...", nivel, *posicao);
+
 
     IndexProduto indexTemp; int cursor = 0;
 
     if (nivel > 1){
-        printf("\nENTROU NO IF nivel > 1");
+
         FILE *arquivo = fopen(nome, "rb");
         if (!arquivo){ printf("\nErro ao abrir arquivo"); return -2; }
         if (fseek(arquivo, (*posicao) * (long)sizeof(IndexProduto), SEEK_SET) != 0){
@@ -133,7 +133,7 @@ int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao)
         *posicao = indexTemp.posicao;
         return pesquisa_por_id_produto(idProduto, nivel - 1, posicao);
     } else {
-        printf("\nENTROU NO ELSE nivel < 1");
+
         FILE *arquivo = fopen(nome, "rb");
         if (!arquivo){ printf("\nErro ao abrir arquivo"); return -2; }
 
@@ -151,29 +151,25 @@ int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao)
         posicaoIndice = (*posicao > 0) ? (*posicao) - 1 : 0;
 
         if (strcmp(idProduto, indexTemp.id_produto) == 0 && indexTemp.excluido == 0){
-            printf("\nENTROU NO STRCMP ID PRODUTO INDEX.ID PRODUTO && INDEX.EXCLUIDO == 0");
+
             Produto p; FILE *arquivoProduto = fopen("produto.bin", "rb");
             if (!arquivoProduto){ printf("\nErro ao abrir produto.bin"); fclose(arquivo); return -2; }
             fseek(arquivoProduto, indexTemp.posicao * (long)sizeof(Produto), SEEK_SET);
             fread(&p, sizeof(p), 1, arquivoProduto);
-            printf("\nProduto encontrado\nID: %s\nAlias: %s\nPreco: %s", p.id_produto, p.alias, p.preco);
-            printf("\nPosicao no arquivo de dados %d\n", indexTemp.posicao);
             fclose(arquivoProduto); fclose(arquivo);
             return indexTemp.posicao;
         }
         else if (indexTemp.excluido == 1){
-            printf("\nENTROU NO ELSE IF INDEX.EXCLUIDO == 1");
+
             Produto p; FILE *arquivoProduto = fopen("produto.bin", "rb");
             if (!arquivoProduto){ printf("\nErro ao abrir produto.bin"); fclose(arquivo); return -2; }
             fseek(arquivoProduto, indexTemp.posicao * (long)sizeof(Produto), SEEK_SET);
             fread(&p, sizeof(p), 1, arquivoProduto);
-            printf("\nProduto (excluido) encontrado\nID: %s\nAlias: %s\nPreco: %s", p.id_produto, p.alias, p.preco);
-            printf("\nPosicao no arquivo de dados %d\n", indexTemp.posicao);
             fclose(arquivoProduto); fclose(arquivo);
             return indexTemp.posicao;
         }
         else if (indexTemp.elo != -1){
-            printf("\nTENTOU CHECAR A EXTENSAO?");
+
             fclose(arquivo);
             Produto p; FILE *arquivoProduto = fopen("produto.bin", "rb");
             if (!arquivoProduto){ printf("\nErro ao abrir produto.bin"); return -2; }
@@ -184,42 +180,42 @@ int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao)
             }
 
             while (qtdLeitura < indexTemp.qtdExtensao && fread(&p, sizeof(Produto), 1, arquivoProduto) == 1){
-                printf("\n[DEBUG] Lendo extensao pos=%d | id_produto=%s", *posicao, p.id_produto);
+
                 if (strcmp(idProduto, p.id_produto) == 0){
-                    printf("\nProduto encontrado (na extensão)\nID: %s\nAlias: %s\nPreco: %s\n", p.id_produto, p.alias, p.preco);
+
                     fclose(arquivoProduto);
                     return (*posicao);
                 }
                 qtdLeitura++; (*posicao)++;
             }
             fclose(arquivoProduto);
-            printf("\nProduto não encontrado na extensão (lidos %d de %d)\n", qtdLeitura, maxLeitura);
+
             return -1;
         } else {
-            printf("\nENTROU NO ELSE DO FIM");
+
             int leituraPos = (posicaoIndice > 0) ? (posicaoIndice - 1) : 0;
 
             fseek(arquivo, leituraPos * (long)sizeof(indexTemp), SEEK_SET);
             fread(&indexTemp, sizeof(indexTemp), 1, arquivo);
 
-            printf("POSICAO PONTEIRO %d | LEITURA POSICAO %d", *posicao, leituraPos);
-            printf(
-                "\nPOSICAO NO ARQ INDICE: %d |INDICE QUE PAROU: %s | ELO %d | EXCLUIDO %d | TAM_EXTENSAO %d | POSICAO ARQ DADOS %d",
-                posicaoIndice, indexTemp.id_produto, indexTemp.elo, indexTemp.excluido,
-                indexTemp.qtdExtensao, indexTemp.posicao
-            );
+
+            if ( (strcmp(idProduto, indexTemp.id_produto)) == 0 && (indexTemp.excluido != 1)) {
+
+                fclose(arquivo);
+                (*posicao) = leituraPos;
+                return indexTemp.posicao;
+            }
 
             if (strcmp(idProduto, indexTemp.id_produto) == 0 && indexTemp.excluido == 0){
-                printf("\n[OK] Registro localizado diretamente no índice (posicao %d)", leituraPos);
+
                 *posicao = leituraPos;
                 fclose(arquivo);
                 return indexTemp.posicao;
             }
 
-            printf("\nCHEGAGEM DA AREA DE EXTENSAO:");
 
             if (indexTemp.elo != -1){
-                printf("\nTENTOU CHECAR A EXTENSAO");
+
                 fclose(arquivo);
 
                 Produto p; FILE *arquivoProduto = fopen("produto.bin", "rb");
@@ -231,9 +227,9 @@ int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao)
                 }
 
                 while (qtdLeitura < indexTemp.qtdExtensao && fread(&p, sizeof(Produto), 1, arquivoProduto) == 1){
-                    printf("\n[DEBUG] Lendo extensao pos=%d | id_produto=%s", *posicao, p.id_produto);
+
                     if (strcmp(idProduto, p.id_produto) == 0){
-                        printf("\nProduto encontrado (na extensão)\nID: %s\nAlias: %s\nPreco: %s\n", p.id_produto, p.alias, p.preco);
+
                         fclose(arquivoProduto);
                         return (*posicao);
                     }
@@ -241,10 +237,10 @@ int pesquisa_por_id_produto(char idProduto[20], int nivel, int *posicao)
                 }
 
                 fclose(arquivoProduto);
-                printf("\nProduto não encontrado na extensão (lidos %d de %d)\n", qtdLeitura, maxLeitura);
+
             }
 
-            printf("\nNao foi possivel encontrar produto.");
+
             (*posicao) = leituraPos;
             fclose(arquivo);
             return -1;
@@ -260,7 +256,6 @@ int inserir_produto(Produto p, int nivel)
     printf("\nProduto a inserir: ID=%s | Alias=%s | Preco=%s", p.id_produto, p.alias, p.preco);
 
     pesquisa = pesquisa_por_id_produto(p.id_produto, nivel, &posicao);
-    printf("\nResultado da pesquisa: %d | Posicao retornada: %d", pesquisa, posicao);
 
     if (pesquisa == -2){ printf("\n[ERRO] Falha durante a pesquisa no indice."); return -1; }
     else if (pesquisa != -1){
@@ -306,19 +301,19 @@ int inserir_produto(Produto p, int nivel)
             strcpy(indexTemp.id_produto, p.id_produto);
             fseek(arquivoDados, indexTemp.posicao * (long)sizeof(Produto), SEEK_SET);
             fwrite(&p, sizeof(Produto), 1, arquivoDados);
-            printf("\n[OK] Produto regravado na posicao de dados %d.", indexTemp.posicao);
+
 
             fseek(arquivoIndice, posicao * (long)sizeof(IndexProduto), SEEK_SET);
             fwrite(&indexTemp, sizeof(IndexProduto), 1, arquivoIndice);
-            printf("\n[OK] Indice atualizado e reativado.");
+
         }
 
         fflush(arquivoDados); fflush(arquivoIndice);
         fclose(arquivoDados); fclose(arquivoIndice);
-        printf("\n[FINALIZADO] Insercao concluida.\n");
+        printf("\n[FINALIZADO].\n");
         return 1;
     } else {
-        printf("\n[CASO] Inserindo novo produto em posicao livre (%d)...", posicao);
+
 
         FILE *arquivoIndice = fopen("IndiceProdutoNivel-1.bin", "rb+");
         FILE *arquivoDados  = fopen("produto.bin", "rb+");
@@ -347,13 +342,12 @@ int inserir_produto(Produto p, int nivel)
                 fseek(arquivoIndice, posicao * (long)sizeof(IndexProduto), SEEK_SET);
                 fwrite(&indexTemp, sizeof(IndexProduto), 1, arquivoIndice);
 
-                printf("\n[OK] Produto inserido na extensao (posicao %ld).", posInsercao);
-                printf("\n[OK] qtdExtensao=%d/%d.", indexTemp.qtdExtensao, indexTemp.tamExtensao);
+
             } else {
                 printf("\n[ERRO] Extensao cheia (elo=%d, tam=%d).", indexTemp.elo, indexTemp.tamExtensao);
             }
         } else {
-            printf("\n[CASO] Criando nova area de extensao...");
+
 
             Produto vazio; strcpy(vazio.id_produto, "9999999999999999999"); strcpy(vazio.alias, "VAZIO"); strcpy(vazio.preco, "0.00");
 
@@ -372,7 +366,7 @@ int inserir_produto(Produto p, int nivel)
             fwrite(&indexTemp, sizeof(IndexProduto), 1, arquivoIndice);
 
             printf("\n[OK] Nova extensao criada (inicio=%ld, tam=%d).", inicioExtensao, tamanhoExtensao);
-            printf("\n[OK] Produto inserido e indice atualizado.");
+
         }
 
         fflush(arquivoDados); fflush(arquivoIndice);
@@ -421,14 +415,14 @@ void excluir_produto(char id[20], int nivel)
                     fseek(arquivoProdutos, (posAtual + i) * (long)sizeof(Produto), SEEK_SET);
                     fwrite(&pExt, sizeof(Produto), 1, arquivoProdutos);
                     fflush(arquivoProdutos);
-                    printf("\n[OK] Produto ID=%s excluido da area de extensao (posicao %d).", id, posAtual + i);
+
                     encontrado = 1; break;
                 }
             }
             fclose(arquivoProdutos);
             if (!encontrado) printf("\n[ERRO] Produto nao encontrado na area de extensao.");
         }
-        printf("\n[FINALIZADO] Exclusao concluida (indice ja estava excluido).\n");
+        printf("\n[FINALIZADO] Exclusao concluida.\n");
         fclose(arquivoIndice); fclose(arquivoDados); return;
     }
 
@@ -437,7 +431,6 @@ void excluir_produto(char id[20], int nivel)
         fseek(arquivoIndice, posicao * (long)sizeof(IndexProduto), SEEK_SET);
         fwrite(&indexTemp, sizeof(IndexProduto), 1, arquivoIndice);
         fflush(arquivoIndice);
-        printf("\n[OK] Indice marcado como excluido (posicao %d).", posicao);
 
         Produto p;
         fseek(arquivoDados, indexTemp.posicao * (long)sizeof(Produto), SEEK_SET);
@@ -448,19 +441,19 @@ void excluir_produto(char id[20], int nivel)
         fseek(arquivoDados, indexTemp.posicao * (long)sizeof(Produto), SEEK_SET);
         fwrite(&p, sizeof(Produto), 1, arquivoDados);
         fflush(arquivoDados);
-        printf("\n[OK] Registro fisico sobrescrito no arquivo de dados (posicao %d).", indexTemp.posicao);
+
     }
     else if (indexTemp.excluido == 0 && strcmp(indexTemp.id_produto, id) != 0) {
-        printf("\n[DEBUG] Procurando ID na area de extensao...");
+
         if (indexTemp.elo != -1) {
             FILE *arquivoProdutos = fopen("produto.bin", "rb+");
             if (!arquivoProdutos){ printf("\n[ERRO] Falha ao abrir produto.bin"); fclose(arquivoIndice); fclose(arquivoDados); return; }
             Produto pExt; int posAtual = indexTemp.elo; int encontrado = 0;
-            for (int i = 0; i < indexTemp.qtdExtensao; i++) {
+            for (int i = 0; i < indexTemp.tamExtensao; i++) {
                 fseek(arquivoProdutos, (posAtual + i) * (long)sizeof(Produto), SEEK_SET);
                 fread(&pExt, sizeof(Produto), 1, arquivoProdutos);
                 if (strcmp(pExt.id_produto, id) == 0) {
-                    printf("\n[DEBUG] Produto encontrado na extensao (pos=%d). Gravando exclusao...", posAtual + i);
+
                     strcpy(pExt.id_produto, "9999999999999999999");
                     strcpy(pExt.alias, "VAZIO");
                     strcpy(pExt.preco, "0.00");
@@ -470,7 +463,7 @@ void excluir_produto(char id[20], int nivel)
                     printf("\n[OK] Produto ID=%s excluido na posicao %d.", id, posAtual + i);
                     fseek(arquivoProdutos, (posAtual + i) * (long)sizeof(Produto), SEEK_SET);
                     fread(&pExt, sizeof(Produto), 1, arquivoProdutos);
-                    printf("\n[DEBUG] Pos %d agora contem ID=%s", posAtual + i, pExt.id_produto);
+
                     encontrado = 1; break;
                 }
             }
@@ -486,28 +479,49 @@ void excluir_produto(char id[20], int nivel)
             }
         }
 
-        if (pesquisa >= indexTemp.elo && indexTemp.elo != -1) {
-            printf("\n[INFO] Exclusao de produto localizado na area de extensao (posicao %d)", pesquisa);
+
+    }
+
+    if (pesquisa && indexTemp.elo != -1) {
+              Produto pExt; int posAtual = indexTemp.elo; int encontrado = 0;
+            for (int i = 0; i < indexTemp.qtdExtensao; i++) {
+                fseek(arquivoDados, (posAtual + i) * (long)sizeof(Produto), SEEK_SET);
+                fread(&pExt, sizeof(Produto), 1, arquivoDados);
+                if (strcmp(pExt.id_produto, id) == 0) {
+
+                    strcpy(pExt.id_produto, "9999999999999999999");
+                    strcpy(pExt.alias, "VAZIO");
+                    strcpy(pExt.preco, "0.00");
+                    fseek(arquivoDados, (posAtual + i) * (long)sizeof(Produto), SEEK_SET);
+                    fwrite(&pExt, sizeof(Produto), 1, arquivoDados);
+                    fflush(arquivoDados);
+                    printf("\n[OK] Produto ID=%s excluido na posicao %d.", id, posAtual + i);
+                    fseek(arquivoDados, (posAtual + i) * (long)sizeof(Produto), SEEK_SET);
+                    fread(&pExt, sizeof(Produto), 1, arquivoDados);
+
+                    encontrado = 1; break;
+                }
+            }
+
             FILE *arquivoProdutos = fopen("produto.bin", "rb+");
-            if (!arquivoProdutos){ printf("\n[ERRO] Falha ao abrir produto.bin para sobrescrever."); fclose(arquivoIndice); fclose(arquivoDados); return; }
-            Produto pExt;
-            fseek(arquivoProdutos, pesquisa * (long)sizeof(Produto), SEEK_SET);
+            if (!arquivoDados){ printf("\n[ERRO] Falha ao abrir produto.bin para sobrescrever."); fclose(arquivoIndice); fclose(arquivoDados); return; }
+
+            fseek(arquivoDados, pesquisa * (long)sizeof(Produto), SEEK_SET);
             fread(&pExt, sizeof(Produto), 1, arquivoProdutos);
-            printf("\n[DEBUG] Antes da exclusao: ID=%s | Alias=%s | Preco=%s", pExt.id_produto, pExt.alias, pExt.preco);
+
             strcpy(pExt.id_produto, "9999999999999999999");
             strcpy(pExt.alias, "VAZIO");
             strcpy(pExt.preco, "0.00");
             fseek(arquivoProdutos, pesquisa * (long)sizeof(Produto), SEEK_SET);
             fwrite(&pExt, sizeof(Produto), 1, arquivoProdutos);
             fflush(arquivoProdutos);
-            printf("\n[OK] Produto sobrescrito em posicao %d com marcacao de exclusao.", pesquisa);
+
             fclose(arquivoProdutos);
             fflush(arquivoIndice); fflush(arquivoDados);
             fclose(arquivoIndice); fclose(arquivoDados);
             printf("\n[FINALIZADO] Exclusao de produto na area de extensao concluida com sucesso.\n");
             return;
         }
-    }
 
     fflush(arquivoIndice); fflush(arquivoDados);
     fclose(arquivoIndice); fclose(arquivoDados);
