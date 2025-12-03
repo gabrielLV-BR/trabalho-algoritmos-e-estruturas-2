@@ -67,8 +67,8 @@ void carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
     char chave_str[20];
     char valor_str[20];
 
-    while (fscanf(arquivo, "%20s", chave_str)
-        && fscanf(arquivo, "%20s", valor_str)) {
+    while ((fscanf(arquivo, "%20s", chave_str) == 1)
+        && (fscanf(arquivo, "%20s", valor_str) == 1)) {
         
         chave = str_para_long(chave_str);
         valor = str_para_long(valor_str);
