@@ -33,3 +33,13 @@ chave_t hash_str(const char* str) {
 
     return acc;
 }
+
+int is_null(const char id[20]) {
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        if (id[i] != '0') return 0;
+    }
+
+    return 1;
+}

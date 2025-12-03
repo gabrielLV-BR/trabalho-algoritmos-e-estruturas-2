@@ -5,80 +5,17 @@
 #include <stdio.h>
 #include <string.h>
 
-static void format_centavos(long c, char out[32]) {
+void format_centavos(long c, char out[32]) {
     long a = c < 0 ? -c : c, r = a % 100, i = a / 100;
     sprintf(out, "%s%ld.%02ld", (c < 0) ? "-" : "", i, r);
 }
-
-/* ===================== BLOCO AUXILIAR HUFFMAN ===================== */
-
-static void huffman_compactar_arquivo(const char *nomeBinario) {
-    TabelaFrequencia tabela;
-    Lista listaFrequencia;
-    No *arvore = NULL;
-    char **dicionario = NULL;
-    char *texto = NULL;
-    char *codificado = NULL;
-
-    printf("\n[Huffman] Organizando tabela de frequencia para %s...\n", nomeBinario);
-    texto = organiza_tabela_frequencia(&tabela, (char *)nomeBinario);
-    if (!texto) {
-        printf("[Huffman] Erro ao organizar tabela de frequencia para %s.\n", nomeBinario);
-        return;
-    }
-
-    printf("[Huffman] Montando lista encadeada de frequencia...\n");
-    organiza_lista_encadeada_frequencia(&listaFrequencia, &tabela);
-
-    printf("[Huffman] Montando arvore de Huffman...\n");
-    arvore = montar_arvore(&listaFrequencia);
-
-    printf("[Huffman] Criando dicionario de codificacao...\n");
-    organiza_dicionario(arvore, &dicionario);
-
-    printf("[Huffman] Codificando texto...\n");
-    codificado = codificar(dicionario, (unsigned char *)texto);
-    if (!codificado) {
-        printf("[Huffman] Erro na codificacao.\n");
-        return;
-    }
-
-    printf("[Huffman] Gravando arquivo compactado (compactado.jp)...\n");
-    compactar((unsigned char *)codificado,nomeBinario);
-
-    printf("[Huffman] Compactacao concluida para %s.\n", nomeBinario);
-    // Aqui poderia dar free em texto, codificado, dicionario, arvore, etc.
-}
-
-static void huffman_descompactar_arquivo(const char *nomeBinario) {
-    TabelaFrequencia tabela;
-    Lista listaFrequencia;
-    No *arvore = NULL;
-    char *texto = NULL;
-
-    printf("\n[Huffman] Reconstruindo arvore de Huffman a partir de %s...\n", nomeBinario);
-    texto = organiza_tabela_frequencia(&tabela, (char *)nomeBinario);
-    if (!texto) {
-        printf("[Huffman] Erro ao organizar tabela de frequencia para %s.\n", nomeBinario);
-        return;
-    }
-
-    organiza_lista_encadeada_frequencia(&listaFrequencia, &tabela);
-    arvore = montar_arvore(&listaFrequencia);
-
-    printf("[Huffman] Descompactando arquivo compactado.jp...\n");
-    printf("========= SAIDA DESCOMPACTADA =========\n");
-    descompactar(arvore,nomeBinario);
-    printf("\n========= FIM DA SAIDA =========\n");
-}
-
-/* ===================== FIM BLOCO HUFFMAN ===================== */
 
 void menuTeste() {
     int nivelPedido  = organiza_indice_pedido();
     int nivelProduto = organiza_indice_produto();
 
     organiza_indice_associacao();
+    organiza_indice_preco();
 
     int nivelAssocProd = organiza_indice_associacao_produto();
 
@@ -98,6 +35,7 @@ void menuTeste() {
         printf("\n4 - Produto mais vendido? (via indice de associacao de ID_PRODUTO)");
         printf("\n5 - Produtos associados ao pedido");
         printf("\n6 - Huffman (compactar/descompactar)");
+        printf("\n7 - Produtos de determinado valor");
         printf("\n0 - Sair");
         printf("\n-----------------------------------------");
         printf("\nEscolha uma opcao: ");
@@ -304,6 +242,17 @@ void menuTeste() {
                     printf("\nOpcao invalida.\n");
                 }
             }
+            break;
+        }
+        case 7: {
+            float preco_minimo, preco_maximo;
+            printf("Insira o valor mínimo do produto: ");
+            scanf("%f", &preco_minimo);
+            putchar('\n');
+            printf("Insira o valor maximo do produto: ");
+            scanf("%f", &preco_maximo);
+
+            mostra_produtos_em_faixa(preco_minimo, preco_maximo, nivelProduto);
             break;
         }
         case 0:

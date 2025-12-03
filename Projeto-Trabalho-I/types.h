@@ -7,7 +7,6 @@
 typedef unsigned long id_pedido;
 typedef unsigned long id_produto;
 
-
 typedef struct {
     char data[11];
     char id_pedido[20];

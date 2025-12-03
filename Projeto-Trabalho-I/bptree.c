@@ -39,6 +39,31 @@ valor_t busca_indice_arvorebp(indice_arvorebp* raiz, chave_t chave) {
     return valor_iterador_arvorebp(busca_muitos_indice_arvorebp(raiz, chave));
 }
 
+iterador_arvorebp busca_primeiro_maior_ou_igual(indice_arvorebp_node *raiz, chave_t chave_inicial) {
+    int i;
+    iterador_arvorebp it = iterador_vazio();
+    if (!raiz) return it;
+
+    indice_arvorebp_node *folha = busca_folha_indice_arvorebp(raiz, chave_inicial);
+    if (!folha) return it;
+
+    // achar o primeiro índice com chave >= chave_inicial
+    for (i = 0; i < folha->num_chaves && folha->chaves[i] < chave_inicial; i++);
+
+    if (i == folha->num_chaves) {
+        // passa à próxima folha
+        folha = folha->proximo;
+        i = 0;
+
+        if (!folha) return it;
+    }
+
+    it.folha = folha;
+    it.i_atual = i;
+    it.chave = folha->chaves[i];
+    return it;
+}
+
 iterador_arvorebp busca_muitos_indice_arvorebp(indice_arvorebp_node* raiz, chave_t chave) {
     iterador_arvorebp iterador;
     if (!raiz) {
@@ -348,18 +373,28 @@ int possui_valor_iterador_arvorebp(iterador_arvorebp iterador) {
     return iterador.chave == iterador.folha->chaves[iterador.i_atual];
 }
 
+int intervalo_valido_iterador_arvorebp(iterador_arvorebp iterador, chave_t chave_final) {
+    if (!iterador.folha) return 0;
+    if (iterador.i_atual >= iterador.folha->num_chaves) return 0;
+
+    return iterador.folha->chaves[iterador.i_atual] <= chave_final;
+}
+
 void avanca_iterador_arvorebp(iterador_arvorebp *iterador) {
-    if (!possui_valor_iterador_arvorebp(*iterador)) {
-        return;
-    }
+    if (!iterador->folha) return;
 
     iterador->i_atual++;
 
-    if (iterador->i_atual > iterador->folha->num_chaves) {
-        iterador->i_atual = 0;
+    if (iterador->i_atual >= iterador->folha->num_chaves) {
         iterador->folha = iterador->folha->proximo;
+        iterador->i_atual = 0;
+    }
+
+    if (iterador->folha) {
+        iterador->chave = iterador->folha->chaves[iterador->i_atual];
     }
 }
+
 
 chave_t valor_iterador_arvorebp(iterador_arvorebp iterador) {
     if (!iterador.folha) {

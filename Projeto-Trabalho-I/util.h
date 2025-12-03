@@ -6,7 +6,6 @@
 #define ARQUIVO_PRODUTOS ("produto.bin")
 #define ARQUIVO_PEDIDOS ("pedido.bin")
 #define ARQUIVO_ASSOCIACAO ("associacao.bin")
-
 typedef unsigned long chave_t;
 typedef unsigned long valor_t;
 
@@ -21,5 +20,7 @@ array cria_array(int num_elementos, void *dados);
 
 // realiza o hash de uma string
 chave_t hash_str(const char *str);
+
+int is_null(const char id[20]);
 
 #endif // __util_h__
