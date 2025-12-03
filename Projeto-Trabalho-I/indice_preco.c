@@ -45,7 +45,7 @@ void organiza_indice_preco() {
     }
     else {
         // arquivo já existe, apenas o carregamos na memória
-        carrega_indice_arvorebp(preco_indice, indice_precos);
+        indice_precos = carrega_indice_arvorebp(preco_indice, indice_precos);
     }
 
     fclose(preco_indice);

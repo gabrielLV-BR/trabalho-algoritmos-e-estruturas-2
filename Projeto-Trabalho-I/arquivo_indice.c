@@ -45,34 +45,34 @@ void salva_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
         return;
     }
 
-    fwrite(&arvore->num_chaves, sizeof(arvore->num_chaves), 1, arquivo);
+    while (!arvore->folha) {
+        arvore = arvore->filhos[0];
+    }
 
-    for (i = 0; i <= arvore->num_chaves; i++) {
-        if (!arvore->folha) {
-            salva_indice_arvorebp(arquivo, arvore->filhos[i]);
-        }
+    if (!arvore) {
+        fprintf(stderr, "Ocorreu um erro ao percorrer a árvore B+\n");
+        exit(1);
+    }
 
-        if (i < arvore->num_chaves) {
+    while (arvore) {
+        for (i = 0; i <= arvore->num_chaves; i++) {
             fwrite(&arvore->chaves[i], sizeof(chave_t), 1, arquivo);
             fwrite(&arvore->valores[i], sizeof(valor_t), 1, arquivo);
         }
+
+        arvore = arvore->proximo;
     }
 }
 
 // carrega indice árvore B+ do arquivo
-void carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
+indice_arvorebp* carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {
     chave_t chave;
     valor_t valor;
 
-    char chave_str[20];
-    char valor_str[20];
-
-    while ((fscanf(arquivo, "%20s", chave_str) == 1)
-        && (fscanf(arquivo, "%20s", valor_str) == 1)) {
-        
-        chave = str_para_long(chave_str);
-        valor = str_para_long(valor_str);
-
-        insere_indice_arvorebp(arvore, chave, valor);
+    while ((fread(&chave, sizeof(chave_t), 1, arquivo) == 1)
+        && (fread(&valor, sizeof(valor_t), 1, arquivo) == 1)) {
+        arvore = insere_indice_arvorebp(arvore, chave, valor);
     }
+
+    return arvore;
 }

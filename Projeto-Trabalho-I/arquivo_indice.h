@@ -18,6 +18,6 @@ void carrega_indice_hash(FILE *arquivo, indice_hash *indice);
 void salva_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore);
 
 // carrega indice árvore B+ do arquivo
-void carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore);
+indice_arvorebp *carrega_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore);
 
 #endif // __escreve_h__
