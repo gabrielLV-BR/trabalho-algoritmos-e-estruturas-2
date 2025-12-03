@@ -498,7 +498,7 @@ char* decodificar(unsigned char texto[], No *raiz){
 */
 void compactar(unsigned char str[],char *nome){
     FILE *arquivo;
-    if(strcasecmp(nome,"pedido.bin"))
+    if(strcasecmp(nome,"pedido.bin") == 0)
     {
      arquivo = fopen("pedido.jp", "wb");
     }
@@ -548,8 +548,12 @@ unsigned int eh_bit_um(unsigned char byte, int i){
 */
 
 void descompactar(No *raiz, char *nome){
-     FILE *arquivo;
-    if(strcasecmp(nome,"pedido.bin"))
+
+     FILE *arquivo, *saidaDescompactacao;
+
+     saidaDescompactacao = fopen("descompactado.txt","w");
+
+    if(strcasecmp(nome,"pedido.bin") == 0 )
     {
      arquivo = fopen("pedido.jp", "rb");
     }
@@ -572,8 +576,7 @@ void descompactar(No *raiz, char *nome){
 
                 if(aux->esq == NULL && aux->dir == NULL){
                     printf("%c", aux->caracter);// imprime o caracter do nó folha
-
-
+                      fputc(aux->caracter, saidaDescompactacao);
                     aux = raiz; // volta para a raiz da árvore
                 }
             }
