@@ -58,7 +58,7 @@ void lerAssociacoes(const char *nome_arquivo) {
     if (!f) { perror("Erro ao abrir associacao.bin"); return; }
     Associacao a; int count=0;
     while (fread(&a, sizeof(Associacao), 1, f)) { a.id_pedido[19]='\0'; a.id_produto[19]='\0'; }
-    printf("\nTotal de associações lidas: %d\n\n", count);
+    printf("\nTotal de associaï¿½ï¿½es lidas: %d\n\n", count);
     fclose(f);
 }
 
@@ -81,7 +81,7 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
 
     sprintf(nome, "IndicePedidoNivel-%d.bin", (*nivel)-1);
     FILE *arquivoAnterior = fopen(nome,"rb");
-    if(!arquivoAnterior){ printf("\nNão foi possivel abrir arquivo anterior para criacao do indice"); return -1; }
+    if(!arquivoAnterior){ printf("\nNï¿½o foi possivel abrir arquivo anterior para criacao do indice"); return -1; }
 
     ListaIndexPedido temp; temp.listaIndex=NULL; temp.qtdIndex=0;
     IndexPedido indexTemp; Pedido pedidoTemp;
@@ -100,7 +100,7 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
 
     sprintf(nome, "IndicePedidoNivel-%d.bin", *nivel);
     FILE *arquivoNovo = fopen(nome,"wb");
-    if(!arquivoNovo){ printf("\nErro ao criar novo arquivo de índice"); return -1; }
+    if(!arquivoNovo){ printf("\nErro ao criar novo arquivo de ï¿½ndice"); return -1; }
     fwrite(temp.listaIndex,sizeof(IndexPedido),(size_t)temp.qtdIndex,arquivoNovo);
     fclose(arquivoNovo);
 
@@ -112,7 +112,7 @@ int cria_indice_pedido(ListaIndexPedido *li, int *nivel,int *qtdBlocos, int tama
 int organiza_indice_pedido()
 {
     int nivelIndice = 1, qtdBlocos = 0, tamanhoBloco = 100;
-    printf("\nCriando Arquivo de Indice de Pedidos...");
+    printf("\nCriando Arquivo de Indice de Pedidos...\n");
     ListaIndexPedido li; li.listaIndex=NULL; li.qtdIndex=0;
     lerPedidos("pedido.bin",&li);
     qsort(li.listaIndex, (size_t)li.qtdIndex, sizeof(IndexPedido), comparaIndexPedido);
@@ -205,7 +205,7 @@ int pesquisa_por_id_pedido(char idPedido[20],int nivel,int *posicao)
                 qtdLeitura++; (*posicao)++;
             }
             fclose(arquivoPedido);
-            printf("\nPedido não encontrado na extensão (lidos %d de %d)\n", qtdLeitura, maxLeitura);
+            printf("\nPedido nï¿½o encontrado na extensï¿½o (lidos %d de %d)\n", qtdLeitura, maxLeitura);
             return -1;
         } else {
 

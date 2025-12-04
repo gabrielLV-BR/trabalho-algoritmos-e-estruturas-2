@@ -20,7 +20,6 @@ void inicializa_indice_precos() {
         chave = FLOAT_TO_CHAVE(atof(produto.preco));
         valor = atol(produto.id_produto);
 
-        printf("[DEBUG] Inserindo chave [%ld] com valor {%ld} (era [%s])\n", chave, valor, produto.id_produto);
         indice_precos = insere_indice_arvorebp(indice_precos, chave, valor);
     }
 
@@ -29,6 +28,7 @@ void inicializa_indice_precos() {
 
 void organiza_indice_preco() {
     
+    printf("\nCriando Arquivo de Indice de Preços...\n");
     if (indice_precos == NULL) {
         indice_precos = cria_indice_arvorebp();
     }

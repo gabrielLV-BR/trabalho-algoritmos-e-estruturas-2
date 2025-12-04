@@ -14,7 +14,7 @@ int organiza_indice_associacao(void)
         return -1;
     }
 
-    printf("\nCriando Arquivo de Indice de Associacao...");
+    printf("\nCriando Arquivo de Indice de Associacao...\n");
 
     /* Crescimento amortizado: carrega o arquivo inteiro em memória. */
     Associacao *vetorAssoc = NULL;

@@ -2,8 +2,10 @@
 #include "associacao.h"
 #include "huffman.h"   // <<< ADICIONADO
 
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 /* ===================== BLOCO AUXILIAR HUFFMAN ===================== */
 
@@ -74,12 +76,34 @@ void format_centavos(long c, char out[32]) {
     sprintf(out, "%s%ld.%02ld", (c < 0) ? "-" : "", i, r);
 }
 
-void menuTeste() {
-    int nivelPedido  = organiza_indice_pedido();
-    int nivelProduto = organiza_indice_produto();
+void tempo_passou(const char *label, struct timespec inicio, struct timespec fim) {
+    double tempo = (fim.tv_sec - inicio.tv_sec) + (fim.tv_nsec - inicio.tv_nsec) / 1e9;
+    printf("%s: Levou %lf segundos\n", label, tempo);
+}
 
+
+void menuTeste() {
+    struct timespec inicio, fim;
+
+    clock_gettime(1, &inicio);
+    int nivelPedido  = organiza_indice_pedido();
+    clock_gettime(1, &fim);
+    tempo_passou("Organizando indice pedido", inicio, fim);
+    
+    clock_gettime(1, &inicio);
+    int nivelProduto = organiza_indice_produto();
+    clock_gettime(1, &fim);
+    tempo_passou("Organizando indice produto", inicio, fim);
+
+    clock_gettime(1, &inicio);
     organiza_indice_associacao();
+    clock_gettime(1, &fim);
+    tempo_passou("Organizando indice associacao", inicio, fim);
+    
+    clock_gettime(1, &inicio);
     organiza_indice_preco();
+    clock_gettime(1, &fim);
+    tempo_passou("Organizando indice preco", inicio, fim);
 
     int nivelAssocProd = organiza_indice_associacao_produto();
 

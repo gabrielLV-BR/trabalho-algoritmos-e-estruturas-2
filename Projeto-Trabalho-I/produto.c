@@ -99,7 +99,7 @@ int cria_indice_produto(ListaIndexProduto *li, int *nivel, int *qtdBlocos, int t
 int organiza_indice_produto()
 {
     int nivelIndice = 1, qtdBlocos = 0, tamanhoBloco = 100;
-    printf("\nCriando Arquivo de Indice de Produtos...");
+    printf("\nCriando Arquivo de Indice de Produtos...\n");
 
     ListaIndexProduto li; li.listaIndex = NULL; li.qtdIndex = 0;
     lerProdutos("produto.bin", &li);

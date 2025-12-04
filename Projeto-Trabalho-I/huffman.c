@@ -210,7 +210,7 @@ char *organiza_tabela_frequencia(TabelaFrequencia *t, char *nome_arquivo)
     }
     else
     {
-        printf("Arquivo inválido: %s\n", nome_arquivo);
+        printf("Arquivo invÃ¡lido: %s\n", nome_arquivo);
         return NULL;
     }
 
@@ -222,7 +222,7 @@ char *organiza_tabela_frequencia(TabelaFrequencia *t, char *nome_arquivo)
 
     adiciona_frequencia_texto(texto,t);
 
-    return texto;  // por enquanto só produto.bin
+    return texto;  // por enquanto sÃ³ produto.bin
 }
 
 
@@ -238,11 +238,11 @@ void criar_lista(Lista *lista){
 //INSERE ORDENADO NA LISTA ENCADEADA COM BASE NA FREQUENCIA
 void inserir_ordenado(Lista *lista, No *no){
     No *aux;
-    // a lista está vazia?
+    // a lista estï¿½ vazia?
     if(lista->inicio == NULL){
         lista->inicio = no;
     }
-    // tem frequência menor que o início da lista
+    // tem frequÃªncia menor que o inÃ­cio da lista
     else if(no->frequencia < lista->inicio->frequencia){
         no->proximo = lista->inicio;
         lista->inicio = no;
@@ -264,7 +264,7 @@ void preencher_lista(TabelaFrequencia *t, Lista *lista){
         if(t->table[i] > 0){ // se quantidade for maior que zero
             novo = malloc(sizeof(No));
             if(novo){
-                novo->caracter = i;// posicao na tabela ja é o caracter
+                novo->caracter = i;// posicao na tabela ja Ã© o caracter
                 novo->frequencia = t->table[i];
                 novo->dir = NULL;
                 novo->esq = NULL;
@@ -283,13 +283,13 @@ void imprimir_lista(Lista *lista){
     No *aux = lista->inicio;
     printf("\n\tLista ordenada: Tamanho: %d\n", lista->tam);
     while(aux){
-        printf("\tCaracter: %c Frequência: %d\n", aux->caracter, aux->frequencia);
+        printf("\tCaracter: %c Frequï¿½ncia: %d\n", aux->caracter, aux->frequencia);
         aux = aux->proximo;
     }
 }
 
 /*
-     Função para remover um nó da lista encadeada
+     FunÃ§Ã£o para remover um nÃ³ da lista encadeada
 */
 No* remove_no_inicio(Lista *lista){
     No *aux = NULL;
@@ -310,7 +310,7 @@ void organiza_lista_encadeada_frequencia(Lista *l,TabelaFrequencia *t)
 }
 
 /*
-     Procedimento para montar a árvore de huffman.
+     Procedimento para montar a Ã¡rvore de huffman.
 */
 No* montar_arvore(Lista *lista){
     No *primeiro, *segundo, *novo;
@@ -335,7 +335,7 @@ No* montar_arvore(Lista *lista){
 }
 
 /*
-      Procedimento para imprimir na tela a árvore de huffman.
+      Procedimento para imprimir na tela a Ã¡rvore de huffman.
 */
 void imprimir_arvore(No *raiz, int tam){
     if(raiz->esq == NULL && raiz->dir == NULL)
@@ -353,7 +353,7 @@ void imprimir_arvore(No *raiz, int tam){
 //'2' = 0011
 //'3' = 00110
 /*
-     Procedimento para descobrir a altura da árvore
+     Procedimento para descobrir a altura da Ã¡rvore
 */
 int altura_arvore(No *raiz){
     int esq, dir;
@@ -369,7 +369,7 @@ int altura_arvore(No *raiz){
     }
 }
 /*
-     Função para alocar memória dinamicamente para o dicionário
+     FunÃ§Ã£o para alocar memÃ³ria dinamicamente para o dicionÃ¡rio
 */
 char** aloca_dicionario(int colunas){
     char **dicionario;
@@ -380,7 +380,7 @@ char** aloca_dicionario(int colunas){
     return dicionario;
 }
 /*
-      Procedimento para preencher o dicionário
+      Procedimento para preencher o dicionÃ¡rio
 */
 void gerar_dicionario(char **dicionario, No *raiz, char *caminho, int colunas){
     char esquerda[colunas], direita[colunas];
@@ -396,7 +396,7 @@ void gerar_dicionario(char **dicionario, No *raiz, char *caminho, int colunas){
     }
 }
 /*
-     Procedimento para imprimir o dicionário na tela
+     Procedimento para imprimir o dicionÃ¡rio na tela
 */
 void imprime_dicionario(char **dicionario){
     int i;
@@ -420,7 +420,7 @@ void organiza_dicionario(No *raiz, char ***dicionario)
 
 
 /*
-     Função para calcular e retornar o tamanho do texto codificado
+     Funï¿½ï¿½o para calcular e retornar o tamanho do texto codificado
 */
 int calcula_tamanho_string(char **dicionario, unsigned char *texto) {
     int i = 0, tam = 0;
@@ -433,7 +433,7 @@ int calcula_tamanho_string(char **dicionario, unsigned char *texto) {
 
 
 /*
-     Função que codifica o texto. O retorno é o endereço da string codificada
+    FunÃ§Ã£o que codifica o texto. O retorno Ã© o endereÃ§o da string codificada
 */
 char* codificar(char **dicionario, unsigned char *texto) {
     int tam = calcula_tamanho_string(dicionario, texto);
@@ -443,7 +443,7 @@ char* codificar(char **dicionario, unsigned char *texto) {
         return NULL;
     }
 
-    int k = 0; // posição de escrita em 'codigo'
+    int k = 0; // posiÃ§Ã£o de escrita em 'codigo'
 
     for (int i = 0; texto[i] != '\0'; i++) {
         unsigned char c = texto[i];
@@ -459,7 +459,7 @@ char* codificar(char **dicionario, unsigned char *texto) {
 }
 
 /*
-      Função para decodificar um texto
+    FunÃ§Ã£o para decodificar um texto
 */
 
 char* decodificar(unsigned char texto[], No *raiz){
@@ -478,7 +478,7 @@ char* decodificar(unsigned char texto[], No *raiz){
         else
             aux = aux->dir; // caminha para a direita
 
-        // se for um nó folha concatena o caracter e volta para a raiz da árvore
+        // se for um nÃ³ folha concatena o caracter e volta para a raiz da Ã¡rvore
         if(aux->esq == NULL && aux->dir == NULL){
             temp[0] = aux->caracter;
             temp[1] = '\0';
@@ -527,7 +527,7 @@ void compactar(unsigned char str[],char *nome){
 
             i++;
         }
-        if(j != 7) // tem um byte em formação
+        if(j != 7) // tem um byte em formaÃ§Ã£o
             fwrite(&byte, sizeof(unsigned char), 1, arquivo);
         fclose(arquivo);
     }
@@ -536,7 +536,7 @@ void compactar(unsigned char str[],char *nome){
 }
 
 /*
-     Função para testar o bit i
+    FunÃ§Ã£o para testar o bit i
 */
 unsigned int eh_bit_um(unsigned char byte, int i){
     unsigned char mascara = (1 << i);
@@ -544,7 +544,7 @@ unsigned int eh_bit_um(unsigned char byte, int i){
 }
 
 /*
-     Função para ler o arquivo compactado e obter o texto original.
+    FunÃ§Ã£o para ler o arquivo compactado e obter o texto original.
 */
 
 void descompactar(No *raiz, char *nome){
@@ -575,9 +575,9 @@ void descompactar(No *raiz, char *nome){
                     aux = aux->esq;
 
                 if(aux->esq == NULL && aux->dir == NULL){
-                    printf("%c", aux->caracter);// imprime o caracter do nó folha
-                      fputc(aux->caracter, saidaDescompactacao);
-                    aux = raiz; // volta para a raiz da árvore
+                    // printf("%c", aux->caracter);// imprime o caracter do nÃ³ folha
+                    fputc(aux->caracter, saidaDescompactacao);
+                    aux = raiz; // volta para a raiz da Ã¡rvore
                 }
             }
         }
