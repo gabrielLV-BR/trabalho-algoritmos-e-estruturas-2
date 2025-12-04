@@ -5,8 +5,6 @@
 void salva_indice_hash(FILE *arquivo, indice_hash indice) {
     int i;
     indice_hash_node *node;
-    // salva tamanho do dicionário do indice
-    fwrite(&indice.tamanho, sizeof(indice.tamanho), 1, arquivo);
 
     for (i = 0; i < indice.tamanho; i++) {
         node = indice.valores[i];
@@ -20,22 +18,20 @@ void salva_indice_hash(FILE *arquivo, indice_hash indice) {
     }
 }
 
-void carrega_indice_hash(FILE *arquivo, indice_hash *indice) {
+indice_hash carrega_indice_hash(FILE *arquivo) {
     int i;
     chave_t chave;
     valor_t valor;
-    fread(&i, sizeof(indice->tamanho), 1, arquivo);
+    indice_hash indice = cria_indice_hash();
 
-    *indice = cria_indice_hash();
-
-    for (i = 0; i < indice->tamanho; i++) {
+    while ((fread(&chave, sizeof(chave_t), 1, arquivo) == 1)
+        && (fread(&valor, sizeof(valor_t), 1, arquivo) == 1)) {
         // recarrega nós do arquivo
-        fread(&chave, sizeof(chave_t), 1, arquivo);
-        fread(&valor, sizeof(valor_t), 1, arquivo);
-        insere_indice_hash(indice, chave, valor);
+        insere_indice_hash(&indice, chave, valor);
     }
-}
 
+    return indice;
+}
 
 // salva indice árvore B+ no arquivo
 void salva_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore) {

@@ -9,6 +9,13 @@ typedef struct
 
 }TabelaFrequencia;
 
+
+/*==================================================
+   BLOCO AUXILIAR HUFFMAN
+=================================================*/
+void huffman_compactar_arquivo(const char *nomeBinario);
+void huffman_descompactar_arquivo(const char *nomeBinario);
+
 /*==================================================
    ESTRUTURA DE NO USADA PARA CRIAR A FILA E ARVORE
 =================================================*/
@@ -27,14 +34,14 @@ typedef struct{
 
 
 //=========================
-// FUNÇÕES DE LEITURA
+// FUNï¿½ï¿½ES DE LEITURA
 //=========================
 char *ler_pedidos_tabela_frequencia(const char *nome_arquivo);
 char *ler_produtos_tabela_frequencia(const char *nome_arquivo);
 
 
 //=========================
-// FUNÇÕES DE FREQUÊNCIA
+// FUNï¿½ï¿½ES DE FREQUï¿½NCIA
 //=========================
 void inicializa_tabela_frequencia(TabelaFrequencia *t);
 char *organiza_tabela_frequencia(TabelaFrequencia *t, char *nome_arquivo);
@@ -48,7 +55,7 @@ void conta_string(char *s, TabelaFrequencia *t);
 
 
 //==============
-//FUNÇÕES LISTA ENCADEADA DE FREQUENCIA
+//FUNï¿½ï¿½ES LISTA ENCADEADA DE FREQUENCIA
 //==============
 void criar_lista(Lista *lista);
 void inserir_ordenado(Lista *lista, No *no);

@@ -1,75 +1,12 @@
 #include "menuTeste.h"
 #include "associacao.h"
 #include "huffman.h"   // <<< ADICIONADO
+#include "produto_hash.h"
 
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-/* ===================== BLOCO AUXILIAR HUFFMAN ===================== */
-
-static void huffman_compactar_arquivo(const char *nomeBinario) {
-    TabelaFrequencia tabela;
-    Lista listaFrequencia;
-    No *arvore = NULL;
-    char **dicionario = NULL;
-    char *texto = NULL;
-    char *codificado = NULL;
-
-    printf("\n[Huffman] Organizando tabela de frequencia para %s...\n", nomeBinario);
-    texto = organiza_tabela_frequencia(&tabela, (char *)nomeBinario);
-    if (!texto) {
-        printf("[Huffman] Erro ao organizar tabela de frequencia para %s.\n", nomeBinario);
-        return;
-    }
-
-    printf("[Huffman] Montando lista encadeada de frequencia...\n");
-    organiza_lista_encadeada_frequencia(&listaFrequencia, &tabela);
-
-    printf("[Huffman] Montando arvore de Huffman...\n");
-    arvore = montar_arvore(&listaFrequencia);
-
-    printf("[Huffman] Criando dicionario de codificacao...\n");
-    organiza_dicionario(arvore, &dicionario);
-
-    printf("[Huffman] Codificando texto...\n");
-    codificado = codificar(dicionario, (unsigned char *)texto);
-    if (!codificado) {
-        printf("[Huffman] Erro na codificacao.\n");
-        return;
-    }
-
-    printf("[Huffman] Gravando arquivo compactado (compactado.jp)...\n");
-    compactar((unsigned char *)codificado,nomeBinario);
-
-    printf("[Huffman] Compactacao concluida para %s.\n", nomeBinario);
-    // Aqui poderia dar free em texto, codificado, dicionario, arvore, etc.
-}
-
-static void huffman_descompactar_arquivo(const char *nomeBinario) {
-    TabelaFrequencia tabela;
-    Lista listaFrequencia;
-    No *arvore = NULL;
-    char *texto = NULL;
-
-    printf("\n[Huffman] Reconstruindo arvore de Huffman a partir de %s...\n", nomeBinario);
-    texto = organiza_tabela_frequencia(&tabela, (char *)nomeBinario);
-    if (!texto) {
-        printf("[Huffman] Erro ao organizar tabela de frequencia para %s.\n", nomeBinario);
-        return;
-    }
-
-    organiza_lista_encadeada_frequencia(&listaFrequencia, &tabela);
-    arvore = montar_arvore(&listaFrequencia);
-
-    printf("[Huffman] Descompactando arquivo compactado.jp...\n");
-    printf("========= SAIDA DESCOMPACTADA =========\n");
-    descompactar(arvore,nomeBinario);
-    printf("\n========= FIM DA SAIDA =========\n");
-}
-
-/* ===================== FIM BLOCO HUFFMAN ===================== */
 
 void format_centavos(long c, char out[32]) {
     long a = c < 0 ? -c : c, r = a % 100, i = a / 100;
@@ -94,6 +31,11 @@ void menuTeste() {
     int nivelProduto = organiza_indice_produto();
     clock_gettime(1, &fim);
     tempo_passou("Organizando indice produto", inicio, fim);
+
+    clock_gettime(1, &inicio);
+    organiza_indice_produto_hash();
+    clock_gettime(1, &fim);
+    tempo_passou("Organizando indice produto (Indice hash em memória)", inicio, fim);
 
     clock_gettime(1, &inicio);
     organiza_indice_associacao();
@@ -186,6 +128,7 @@ void menuTeste() {
                 printf("\n1 - Inserir Produto");
                 printf("\n2 - Excluir Produto");
                 printf("\n3 - Pesquisar Produto");
+                printf("\n4 - Pesquisar Produto (Hash)");
                 printf("\n0 - Voltar ao menu principal");
                 printf("\n-------------------------------");
                 printf("\nEscolha: ");
@@ -223,6 +166,26 @@ void menuTeste() {
                         else                       printf("\n[ERRO] Falha na pesquisa.\n");
                     }
                     break;
+
+                case 4:
+                    Produto produto;
+
+                    printf("\nDigite o ID do produto a pesquisar: ");
+                    scanf("%19s", idPesquisa);
+                    printf("\n[INFO] Pesquisando produto ID=%s...\n", idPesquisa);
+
+                    produto = busca_produto_hash(idPesquisa);
+
+                    if (is_null(produto.id_produto)) {
+                        printf("Não foi possível encontrar o produto com o Id [%s]\n", produto.id_produto);
+                    }
+                    else {
+                        printf("Encontrado produto %s, %s com valor %s\n", produto.alias, produto.cor, produto.preco);
+                    }
+
+                    break;    
+                break;
+                    
 
                 case 0: printf("\nRetornando ao menu principal...\n"); break;
                 default: printf("\nOpcao invalida.\n");

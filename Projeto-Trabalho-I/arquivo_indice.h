@@ -12,7 +12,7 @@
 void salva_indice_hash(FILE *arquivo, indice_hash indice);
 
 // carrega indice hash do arquivo
-void carrega_indice_hash(FILE *arquivo, indice_hash *indice);
+indice_hash carrega_indice_hash(FILE *arquivo);
 
 // salva indice árvore B+ no arquivo
 void salva_indice_arvorebp(FILE *arquivo, indice_arvorebp *arvore);

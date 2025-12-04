@@ -1,6 +1,7 @@
 #include "types.h"
 #include "sort.h"
 #include "produto.h"
+#include "hash.h"
 #include "util.h"
 
 void adicionar_produto(ListaProduto *lp, Produto novoProduto)
