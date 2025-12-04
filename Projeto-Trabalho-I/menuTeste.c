@@ -1,12 +1,11 @@
 #include "menuTeste.h"
 #include "associacao.h"
-#include "huffman.h"   // <<< ADICIONADO
+#include "huffman.h"
 #include "produto_hash.h"
+#include "teste_performance.h"
 
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 void format_centavos(long c, char out[32]) {
     long a = c < 0 ? -c : c, r = a % 100, i = a / 100;
@@ -18,36 +17,32 @@ void tempo_passou(const char *label, struct timespec inicio, struct timespec fim
     printf("%s: Levou %lf segundos\n", label, tempo);
 }
 
-
 void menuTeste() {
-    struct timespec inicio, fim;
+    int nivelPedido, nivelProduto, nivelAssocProd;
 
-    clock_gettime(1, &inicio);
-    int nivelPedido  = organiza_indice_pedido();
-    clock_gettime(1, &fim);
-    tempo_passou("Organizando indice pedido", inicio, fim);
+    MEDIR_TEMPO("Organizando indice pedido", {
+        nivelPedido  = organiza_indice_pedido();
+    });
     
-    clock_gettime(1, &inicio);
-    int nivelProduto = organiza_indice_produto();
-    clock_gettime(1, &fim);
-    tempo_passou("Organizando indice produto", inicio, fim);
+    MEDIR_TEMPO("Organizando indice produto", {
+        nivelProduto = organiza_indice_produto();
+    });
 
-    clock_gettime(1, &inicio);
-    organiza_indice_produto_hash();
-    clock_gettime(1, &fim);
-    tempo_passou("Organizando indice produto (Indice hash em memória)", inicio, fim);
+    MEDIR_TEMPO("Organizando indice produto (Indice hash em memória)", {
+        organiza_indice_produto_hash();
+    });
 
-    clock_gettime(1, &inicio);
-    organiza_indice_associacao();
-    clock_gettime(1, &fim);
-    tempo_passou("Organizando indice associacao", inicio, fim);
+    MEDIR_TEMPO("Organizando indice associacao", {
+        organiza_indice_associacao();
+    });
     
-    clock_gettime(1, &inicio);
-    organiza_indice_preco();
-    clock_gettime(1, &fim);
-    tempo_passou("Organizando indice preco", inicio, fim);
+    MEDIR_TEMPO("Organizando indice preco", {
+        organiza_indice_preco();
+    });
 
-    int nivelAssocProd = organiza_indice_associacao_produto();
+    MEDIR_TEMPO("Organizando indice associacao produto", {
+        nivelAssocProd = organiza_indice_associacao_produto();
+    });
 
     int opPrincipal = 1, opSecundario = 1;
     char idPesquisa[20];
@@ -66,6 +61,7 @@ void menuTeste() {
         printf("\n5 - Produtos associados ao pedido");
         printf("\n6 - Huffman (compactar/descompactar)");
         printf("\n7 - Produtos de determinado valor");
+        printf("\n8 - Teste de performance dos indices");
         printf("\n0 - Sair");
         printf("\n-----------------------------------------");
         printf("\nEscolha uma opcao: ");
@@ -304,6 +300,10 @@ void menuTeste() {
             scanf("%f", &preco_maximo);
 
             mostra_produtos_em_faixa(preco_minimo, preco_maximo, nivelProduto);
+            break;
+        }
+        case 8: {
+            teste_performance(nivelProduto);
             break;
         }
         case 0:
